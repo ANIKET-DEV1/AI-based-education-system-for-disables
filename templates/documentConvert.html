@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Converter</title>
+    <style>
+        body {
+            background: #0f172a;
+            color: white;
+            font-family: Arial;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .box {
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 15px;
+            width: 400px;
+            margin: auto;
+        }
+
+        input, select, button {
+            margin-top: 15px;
+            padding: 10px;
+            width: 100%;
+            border-radius: 10px;
+            border: none;
+        }
+
+        button {
+            background: linear-gradient(to right, #3b82f6, #8b5cf6);
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+    <h2>🔄 File Converter</h2>
+
+    <form action="/convert" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+
+        <select name="format">
+            <option value="pdf">Convert to PDF</option>
+            <option value="pptx">Convert to PPT</option>
+            <option value="xlsx">Convert to Excel</option>
+            <option value="csv">Convert to CSV</option>
+        </select>
+
+        <button type="submit">Convert</button>
+    </form>
+</div>
+
+</body>
+</html>
+<!-- 
+
+from flask import Flask, render_template, request, send_file
+import requests
+import os
+
+app = Flask(__name__)
+
+API_KEY = "YOUR_CLOUDCONVERT_API_KEY"
+
+@app.route('/')
+def home():
+    return render_template('convert.html')
+
+@app.route('/convert', methods=['POST'])
+def convert_file():
+    file = request.files['file']
+    output_format = request.form['format']
+
+    # Save file
+    input_filename = file.filename
+    file.save(input_filename)
+
+    # Create job
+    url = "https://api.cloudconvert.com/v2/jobs"
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-type": "application/json"
+    }
+
+    job_data = {
+        "tasks": {
+            "import-my-file": {
+                "operation": "import/upload"
+            },
+            "convert-my-file": {
+                "operation": "convert",
+                "input": "import-my-file",
+                "output_format": output_format
+            },
+            "export-my-file": {
+                "operation": "export/url",
+                "input": "convert-my-file"
+            }
+        }
+    }
+
+    response = requests.post(url, json=job_data, headers=headers)
+    job = response.json()
+
+    # Upload file
+    upload_task = next(task for task in job['data']['tasks'] if task['name'] == 'import-my-file')
+    upload_url = upload_task['result']['form']['url']
+    upload_params = upload_task['result']['form']['parameters']
+
+    files = {'file': open(input_filename, 'rb')}
+    requests.post(upload_url, data=upload_params, files=files)
+
+    # Wait for completion
+    job_id = job['data']['id']
+    status_url = f"https://api.cloudconvert.com/v2/jobs/{job_id}"
+
+    while True:
+        status_res = requests.get(status_url, headers=headers).json()
+        if status_res['data']['status'] == 'finished':
+            break
+
+    # Get download link
+    export_task = next(task for task in status_res['data']['tasks'] if task['name'] == 'export-my-file')
+    file_url = export_task['result']['files'][0]['url']
+
+    # Download converted file
+    output_filename = "converted." + output_format
+    file_data = requests.get(file_url).content
+
+    with open(output_filename, 'wb') as f:
+        f.write(file_data)
+
+    return send_file(output_filename, as_attachment=True)
+
+if __name__ == '__main__':
+    app.run(debug=True) -->
