@@ -1,98 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}AI Learning{% endblock %}</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}AI Learn{% endblock %}</title>
 
-    <!-- Tailwind -->
-    <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+/* 🌈 THEMES */
+body.light {
+    background: #f3f4f6;
+    color: #111827;
+}
+body.dark {
+    background: #0f172a;
+    color: #e5e7eb;
+}
+body.colorblind {
+    background: #000000;
+    color: #ffffff;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 70px;
+    transition: 0.3s;
+}
+
+/* Active icon */
+.active-icon {
+    background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
+}
+</style>
+
 </head>
 
-<body class="bg-gray-100 flex flex-col min-h-screen">
+<body class="dark flex">
 
-<!-- ✅ Navbar -->
-<nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
+<!-- 🔥 Sidebar (like your image) -->
+<div class="sidebar h-screen bg-[#020617] flex flex-col items-center py-4 space-y-6">
 
-    <!-- Logo -->
-    <div class="text-2xl font-bold text-blue-600">
-        Suno Padho 
+    <div class="text-xl text-white font-bold">⚡</div>
+
+    <a href="{{ url_for('dashboard') }}" class="p-3 rounded-lg hover:bg-gray-700">🏠</a>
+    <a href="{{ url_for('chatbot') }}" class="p-3 rounded-lg hover:bg-gray-700 active-icon">🤖</a>
+    <a href="{{ url_for('activity') }}" class="p-3 rounded-lg hover:bg-gray-700">📊</a>
+    <a href="{{ url_for('image') }}" class="p-3 rounded-lg hover:bg-gray-700">🖼️</a>
+    <a href="{{ url_for('pdf') }}" class="p-3 rounded-lg hover:bg-gray-700">📄</a>
+    <a href="{{ url_for('convert') }}" class="p-3 rounded-lg hover:bg-gray-700">🔄</a>
+
+    <div class="mt-auto mb-4 space-y-4">
+        <a href="#" class="p-3 rounded-lg hover:bg-gray-700">♿</a>
+        <a href="#" class="p-3 rounded-lg hover:bg-gray-700">⚙️</a>
     </div>
+</div>
 
-    <!-- Menu -->
-    <ul class="hidden md:flex space-x-6 font-medium text-gray-700">
-        <li><a href="{{ url_for('chatbot') }}" class="hover:text-blue-500">🤖 AI Chatbot</a></li>
-        <li><a href="{{ url_for('activity') }}" class="hover:text-blue-500">📊 Recent Activity</a></li>
-        <li><a href="{{ url_for('image') }}" class="hover:text-blue-500">🖼️ Image Visualize</a></li>
-        <li><a href="{{ url_for('pdf') }}" class="hover:text-blue-500">📄 PDF Summarize</a></li>
-        <li><a href="{{ url_for('convert') }}" class="hover:text-blue-500">🔄 Document Convert</a></li>
-    </ul>
+<!-- 🔥 Main Content -->
+<div class="flex-1">
 
-    <!-- Right Section -->
-    <div class="flex items-center space-x-4">
+    <!-- 🔹 Top Navbar -->
+    <div class="flex justify-between items-center px-6 py-4 border-b border-gray-700">
 
-        <!-- Theme Selector -->
-        <select id="themeSelector" 
-            class="border rounded-lg px-3 py-1 focus:outline-none">
-            <option value="light">🌞 Light</option>
-            <option value="dark">🌙 Dark</option>
-            <option value="blue">🔵 Blue</option>
-            <option value="green">🟢 Green</option>
-        </select>
+        <!-- Title -->
+        <h1 class="text-xl font-semibold">
+            {% block header %}Content Converter{% endblock %}
+        </h1>
 
-        <!-- Profile -->
-        <img src="https://i.pravatar.cc/40" 
-            class="w-10 h-10 rounded-full border" />
-    </div>
+        <!-- Right Controls -->
+        <div class="flex items-center gap-4">
 
-</nav>
+            <!-- Menu Text (instead of buttons like you said) -->
+            <!-- <div class="hidden md:flex gap-4 text-sm">
+                <a href="{{ url_for('chatbot') }}">Chatbot AI</a>
+                <a href="{{ url_for('activity') }}">Recent Activity</a>
+                <a href="{{ url_for('image') }}">Img Visualize</a>
+                <a href="{{ url_for('pdf') }}">PDF Summarize</a>
+                <a href="{{ url_for('convert') }}">Document Conversion</a>
+            </div> -->
 
-<!-- ✅ Page Content -->
-<main class="flex-grow p-6">
-    {% block content %}{% endblock %}
-</main>
+            <!-- Theme Selector -->
+            <select id="themeSelector" class="px-2 py-1 rounded bg-gray-800 text-white">
+                <option value="dark">🌙 Dark</option>
+                <option value="light">🌞 Light</option>
+                <option value="colorblind">♿ Color Blind</option>
+            </select>
 
-<!-- ✅ Footer -->
-<footer class="bg-white shadow-inner mt-6">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center text-gray-600">
-
-        <!-- Left -->
-        <p class="text-sm">
-            © 2026 AI Learn | Built for Inclusive Education ♿
-        </p>
-
-        <!-- Center Links -->
-        <div class="flex space-x-4 mt-2 md:mt-0">
-            <a href="#" class="hover:text-blue-500">About</a>
-            <a href="#" class="hover:text-blue-500">Contact</a>
-            <a href="#" class="hover:text-blue-500">Privacy</a>
         </div>
-
-        <!-- Right -->
-        <div class="text-sm mt-2 md:mt-0">
-            Made with ❤️ by Null Pointers 
-        </div>
-
     </div>
-</footer>
 
-<!-- Theme Script -->
+    <!-- 🔹 Page Content -->
+    <div class="p-6">
+        {% block content %}{% endblock %}
+    </div>
+
+</div>
+
+<!-- 🔥 Theme Script (Global) -->
 <script>
-    const themeSelector = document.getElementById("themeSelector");
+const selector = document.getElementById("themeSelector");
 
-    themeSelector.addEventListener("change", function () {
-        const body = document.body;
+// Load saved theme
+const savedTheme = localStorage.getItem("theme") || "dark";
+document.body.className = savedTheme + " flex";
 
-        if (this.value === "dark") {
-            body.className = "bg-gray-900 text-white flex flex-col min-h-screen";
-        } else if (this.value === "blue") {
-            body.className = "bg-blue-100 text-black flex flex-col min-h-screen";
-        } else if (this.value === "green") {
-            body.className = "bg-green-100 text-black flex flex-col min-h-screen";
-        } else {
-            body.className = "bg-gray-100 text-black flex flex-col min-h-screen";
-        }
-    });
+// Apply selected theme
+selector.value = savedTheme;
+
+selector.addEventListener("change", function () {
+    document.body.className = this.value + " flex";
+    localStorage.setItem("theme", this.value);
+});
 </script>
 
 </body>
