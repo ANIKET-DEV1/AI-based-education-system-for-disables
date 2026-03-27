@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI Learning{% endblock %}</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 flex flex-col min-h-screen">
+
+<!-- ✅ Navbar -->
+<nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
+
+    <!-- Logo -->
+    <div class="text-2xl font-bold text-blue-600">
+        Suno Padho 
+    </div>
+
+    <!-- Menu -->
+    <ul class="hidden md:flex space-x-6 font-medium text-gray-700">
+        <li><a href="{{ url_for('chatbot') }}" class="hover:text-blue-500">🤖 AI Chatbot</a></li>
+        <li><a href="{{ url_for('activity') }}" class="hover:text-blue-500">📊 Recent Activity</a></li>
+        <li><a href="{{ url_for('image') }}" class="hover:text-blue-500">🖼️ Image Visualize</a></li>
+        <li><a href="{{ url_for('pdf') }}" class="hover:text-blue-500">📄 PDF Summarize</a></li>
+        <li><a href="{{ url_for('convert') }}" class="hover:text-blue-500">🔄 Document Convert</a></li>
+    </ul>
+
+    <!-- Right Section -->
+    <div class="flex items-center space-x-4">
+
+        <!-- Theme Selector -->
+        <select id="themeSelector" 
+            class="border rounded-lg px-3 py-1 focus:outline-none">
+            <option value="light">🌞 Light</option>
+            <option value="dark">🌙 Dark</option>
+            <option value="blue">🔵 Blue</option>
+            <option value="green">🟢 Green</option>
+        </select>
+
+        <!-- Profile -->
+        <img src="https://i.pravatar.cc/40" 
+            class="w-10 h-10 rounded-full border" />
+    </div>
+
+</nav>
+
+<!-- ✅ Page Content -->
+<main class="flex-grow p-6">
+    {% block content %}{% endblock %}
+</main>
+
+<!-- ✅ Footer -->
+<footer class="bg-white shadow-inner mt-6">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center text-gray-600">
+
+        <!-- Left -->
+        <p class="text-sm">
+            © 2026 AI Learn | Built for Inclusive Education ♿
+        </p>
+
+        <!-- Center Links -->
+        <div class="flex space-x-4 mt-2 md:mt-0">
+            <a href="#" class="hover:text-blue-500">About</a>
+            <a href="#" class="hover:text-blue-500">Contact</a>
+            <a href="#" class="hover:text-blue-500">Privacy</a>
+        </div>
+
+        <!-- Right -->
+        <div class="text-sm mt-2 md:mt-0">
+            Made with ❤️ by Null Pointers 
+        </div>
+
+    </div>
+</footer>
+
+<!-- Theme Script -->
+<script>
+    const themeSelector = document.getElementById("themeSelector");
+
+    themeSelector.addEventListener("change", function () {
+        const body = document.body;
+
+        if (this.value === "dark") {
+            body.className = "bg-gray-900 text-white flex flex-col min-h-screen";
+        } else if (this.value === "blue") {
+            body.className = "bg-blue-100 text-black flex flex-col min-h-screen";
+        } else if (this.value === "green") {
+            body.className = "bg-green-100 text-black flex flex-col min-h-screen";
+        } else {
+            body.className = "bg-gray-100 text-black flex flex-col min-h-screen";
+        }
+    });
+</script>
+
+</body>
+</html>
