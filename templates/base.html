@@ -1,117 +1,196 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{% block title %}AI Learn{% endblock %}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SunoPadho{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --sidebar: #020617; --accent: #3b82f6; --glass: rgba(255, 255, 255, 0.03); }
+        * { font-family: 'Plus Jakarta Sans', sans-serif; cursor: default; }
+        
+        body { transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s; min-height: 100vh; display: flex; overflow-x: hidden; }
+        
+        /* Themes */
+        body.dark { background: #070a13; color: #f8fafc; }
+        body.light { background: #f8fafc; color: #0f172a; }
+        body.cb { background: #000000; color: #ffff00; } 
 
-<script src="https://cdn.tailwindcss.com"></script>
+        .sidebar { width: 85px; background: var(--sidebar); border-right: 1px solid rgba(255,255,255,0.05); }
+        .glass-card { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
+        
+        .nav-link { position: relative; transition: all 0.3s ease; }
+        .nav-link:hover { transform: translateY(-3px); color: white; }
+        .active-nav { background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3); color: white !important; }
 
-<style>
-/* 🌈 THEMES */
-body.light {
-    background: #f3f4f6;
-    color: #111827;
-}
-body.dark {
-    background: #0f172a;
-    color: #e5e7eb;
-}
-body.colorblind {
-    background: #000000;
-    color: #ffffff;
-}
-
-/* Sidebar */
-.sidebar {
-    width: 70px;
-    transition: 0.3s;
-}
-
-/* Active icon */
-.active-icon {
-    background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
-}
-</style>
-
+        /* Hover Reader Outline */
+        .reader-focus { outline: 3px solid #3b82f6 !important; outline-offset: 4px; border-radius: 8px; transition: outline 0.1s ease; }
+        
+        .header-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); transition: 0.2s; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; }
+        .header-btn:hover { background: rgba(255,255,255,0.15); transform: scale(1.05); }
+    </style>
 </head>
 
-<body class="dark flex">
+<body class="dark">
 
-<!-- 🔥 Sidebar (like your image) -->
-<div class="sidebar h-screen bg-[#020617] flex flex-col items-center py-4 space-y-6">
-
-    <div class="text-xl text-white font-bold">⚡</div>
-
-    <a href="{{ url_for('dashboard') }}" class="p-3 rounded-lg hover:bg-gray-700">🏠</a>
-    <a href="{{ url_for('chatbot') }}" class="p-3 rounded-lg hover:bg-gray-700 active-icon">🤖</a>
-    <a href="{{ url_for('activity') }}" class="p-3 rounded-lg hover:bg-gray-700">📊</a>
-    <a href="{{ url_for('image') }}" class="p-3 rounded-lg hover:bg-gray-700">🖼️</a>
-    <a href="{{ url_for('pdf') }}" class="p-3 rounded-lg hover:bg-gray-700">📄</a>
-    <a href="{{ url_for('convert') }}" class="p-3 rounded-lg hover:bg-gray-700">🔄</a>
-
-    <div class="mt-auto mb-4 space-y-4">
-        <a href="#" class="p-3 rounded-lg hover:bg-gray-700">♿</a>
-        <a href="#" class="p-3 rounded-lg hover:bg-gray-700">⚙️</a>
+<aside class="sidebar flex flex-col items-center py-8 space-y-10 h-screen sticky top-0 z-50">
+    <div class="group relative" aria-label="Soon-oh Pud-ho Platform Logo">
+        <div class="text-3xl font-extrabold bg-gradient-to-br from-blue-400 to-purple-500 bg-clip-text text-transparent transform group-hover:scale-110 transition">SP</div>
     </div>
-</div>
+    
+    <nav class="flex flex-col space-y-6 w-full items-center">
+        {% for ep, icon, label in [
+            ('view.dashboard','🏠','Home Dashboard'),
+            ('view.chatbot','🤖','AI Tutor Assistant'),
+            ('view.simplifier','📊','Magic Simplier'),
+            ('view.document','📄','Document Summarize Reader'),
+        ] %}
+        <a href="{{ url_for(ep) }}" aria-label="{{ label }}"
+           class="nav-link p-4 rounded-2xl text-xl {% if request.endpoint == ep %}active-nav{% else %}text-gray-500{% endif %}">
+            {{ icon }}
+        </a>
+        {% endfor %}
+    </nav>
 
-<!-- 🔥 Main Content -->
-<div class="flex-1">
+    <div class="mt-auto flex flex-col space-y-5 mb-6">
+        <button onclick="cycleTheme()" class="text-gray-500 hover:text-white transition" aria-label="Switch Theme Mode">🌓</button>
+        <a href="{{ url_for('auth.logout') }}" class="text-gray-500 hover:text-red-500 transition" aria-label="Secure Logout">🚪</a>
+    </div>
+</aside>
 
-    <!-- 🔹 Top Navbar -->
-    <div class="flex justify-between items-center px-6 py-4 border-b border-gray-700">
-
-        <!-- Title -->
-        <h1 class="text-xl font-semibold">
-            {% block header %}Content Converter{% endblock %}
-        </h1>
-
-        <!-- Right Controls -->
-        <div class="flex items-center gap-4">
-
-            <!-- Menu Text (instead of buttons like you said) -->
-            <!-- <div class="hidden md:flex gap-4 text-sm">
-                <a href="{{ url_for('chatbot') }}">Chatbot AI</a>
-                <a href="{{ url_for('activity') }}">Recent Activity</a>
-                <a href="{{ url_for('image') }}">Img Visualize</a>
-                <a href="{{ url_for('pdf') }}">PDF Summarize</a>
-                <a href="{{ url_for('convert') }}">Document Conversion</a>
-            </div> -->
-
-            <!-- Theme Selector -->
-            <select id="themeSelector" class="px-2 py-1 rounded bg-gray-800 text-white">
-                <option value="dark">🌙 Dark</option>
-                <option value="light">🌞 Light</option>
-                <option value="colorblind">♿ Color Blind</option>
-            </select>
-
+<div class="flex-1 flex flex-col">
+    <header class="flex justify-between items-center px-10 py-5 bg-transparent sticky top-0 z-40 backdrop-blur-md">
+        <div>
+            <h2 class="text-sm font-semibold uppercase tracking-[0.2em] text-blue-500/80 mb-1">Platform</h2>
+            <h1 class="text-2xl font-bold tracking-tight">{% block header %}Dashboard{% endblock %}</h1>
         </div>
-    </div>
 
-    <!-- 🔹 Page Content -->
-    <div class="p-6">
-        {% block content %}{% endblock %}
-    </div>
+        <div class="flex items-center gap-4">
+            <button id="hoverToggle" onclick="toggleHoverSystem()" 
+                    class="header-btn px-4 text-xs font-black tracking-widest text-gray-400" 
+                    aria-label="Toggle Smart Hover Reader Mode">CC</button>
+            
+            <div class="flex items-center glass-card rounded-xl p-1 gap-1">
+                <button onclick="fnt(2)" class="w-10 h-10 hover:text-blue-400 font-bold transition" aria-label="Increase text size">A+</button>
+                <div class="w-[1px] h-4 bg-white/10"></div>
+                <button onclick="fnt(-2)" class="w-10 h-10 hover:text-blue-400 font-bold transition" aria-label="Decrease text size">A-</button>
+            </div>
+            
+            <button id="spkBtn" onclick="readMainContent()" 
+                    class="header-btn w-12 text-xl text-green-400" 
+                    aria-label="Listen to page summary">🔊</button>
+        </div>
+    </header>
 
+    <main class="px-10 py-6 flex-1">
+        <div class="max-w-7xl mx-auto">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="px-10 py-6 border-t border-white/5 flex justify-between items-center text-[10px] uppercase tracking-widest text-gray-500">
+        <p>&copy; 2026 Sunno padho AI</p>
+        <p>Crafted by <span class="text-blue-500 font-bold">Null Pointers</span></p>
+    </footer>
 </div>
 
-<!-- 🔥 Theme Script (Global) -->
 <script>
-const selector = document.getElementById("themeSelector");
+    const state = {
+        th: localStorage.getItem('th') || 'dark',
+        fs: parseInt(localStorage.getItem('fs')) || 17,
+        isHoverEnabled: false
+    };
 
-// Load saved theme
-const savedTheme = localStorage.getItem("theme") || "dark";
-document.body.className = savedTheme + " flex";
+    const synth = window.speechSynthesis;
 
-// Apply selected theme
-selector.value = savedTheme;
+    function applyState() {
+        document.body.className = `${state.th} flex`;
+        document.body.style.fontSize = state.fs + 'px';
+        localStorage.setItem('th', state.th);
+        localStorage.setItem('fs', state.fs);
+    }
 
-selector.addEventListener("change", function () {
-    document.body.className = this.value + " flex";
-    localStorage.setItem("theme", this.value);
-});
+    function cycleTheme() {
+        const themes = ['dark', 'light', 'cb'];
+        state.th = themes[(themes.indexOf(state.th) + 1) % themes.length];
+        applyState();
+    }
+
+    function fnt(v) { 
+        state.fs = Math.max(12, Math.min(32, state.fs + v)); 
+        applyState(); 
+    }
+
+    // --- 🔊 SMART ACCESSIBILITY ENGINE ---
+    
+    function toggleHoverSystem() {
+        state.isHoverEnabled = !state.isHoverEnabled;
+        const btn = document.getElementById('hoverToggle');
+        btn.classList.toggle('text-blue-400', state.isHoverEnabled);
+        btn.classList.toggle('border-blue-500/50', state.isHoverEnabled);
+        
+        speak(state.isHoverEnabled ? "Smart reader active" : "Smart reader off");
+    }
+
+    document.addEventListener('mouseover', (e) => {
+        if (!state.isHoverEnabled) return;
+
+        const target = e.target.closest('[aria-label], [alt], p, h1, h2, h3, h4, a, button, li, span');
+        if (!target) return;
+
+        // 1. Kill previous speech immediately
+        synth.cancel();
+
+        // 2. Identify text content
+        let text = target.getAttribute('aria-label') || target.getAttribute('alt') || target.innerText.trim();
+        
+        if (text) {
+            target.classList.add('reader-focus');
+
+            // 3. Intelligent Prefixing
+            let prefix = "";
+            const tag = target.tagName;
+            if (tag === 'A') prefix = "Link: ";
+            else if (tag === 'BUTTON') prefix = "Button: ";
+            else if (tag === 'IMG') prefix = "Image: ";
+
+            const utterance = new SpeechSynthesisUtterance(prefix + text);
+            utterance.rate = 1.15; // Natural but fast for browsing
+            utterance.pitch = 1;
+            
+            synth.speak(utterance);
+
+            // 4. Cleanup
+            target.addEventListener('mouseleave', () => {
+                target.classList.remove('reader-focus');
+                synth.cancel();
+            }, { once: true });
+        }
+    });
+
+    function speak(text) {
+        synth.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.rate = 1.2;
+        synth.speak(u);
+    }
+
+    function readMainContent() {
+        if (synth.speaking) {
+            synth.cancel();
+            document.getElementById('spkBtn').innerText = "🔊";
+        } else {
+            const mainText = document.querySelector('main').innerText;
+            const ut = new SpeechSynthesisUtterance(mainText);
+            ut.onstart = () => document.getElementById('spkBtn').innerText = "🛑";
+            ut.onend = () => document.getElementById('spkBtn').innerText = "🔊";
+            synth.speak(ut);
+        }
+    }
+
+    // Launch
+    applyState();
 </script>
-
 </body>
 </html>

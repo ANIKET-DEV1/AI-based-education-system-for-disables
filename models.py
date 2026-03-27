@@ -100,12 +100,10 @@ class Helper:
     def save_lesson(self, title, original, simplified, audio, video):
         try:
             cur = self.db.cursor()
-
             query = """
             INSERT INTO lessons (title, original_text, simplified_text, audio_path, video_path)
             VALUES (%s, %s, %s, %s, %s)
             """
-
             cur.execute(query, (title, original, simplified, audio, video))
             self.db.commit()
 
@@ -120,7 +118,6 @@ class Helper:
     def get_lessons(self):
         try:
             cur = self.db.cursor()
-
             cur.execute("SELECT * FROM lessons ORDER BY created_at DESC")
             return cur.fetchall()
 
