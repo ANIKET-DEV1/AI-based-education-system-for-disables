@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>VibeShift | Authenticate</title>
+    <title>SunoPadho | Authenticate</title>
     <style>
         /* ----- REBRANDED THEME: Vibrant Purple & Coral ----- */
         :root {
@@ -318,19 +318,19 @@
                 <div class="form sign-up">
                     <form class="sign-up" action="/register" method="POST">
                         <div class="input-group">
-                            <input type="text" name="username" placeholder="✨ Username" autocomplete="off">
+                            <input type="text" name="username" placeholder="✨ Username" autocomplete="off" required>
                         </div>
 
                         <div class="input-group">
-                            <input type="email" name="email" placeholder="📧 Email address">
+                            <input type="email" name="email" placeholder="📧 Email address" required>
                         </div>
 
                         <div class="input-group">
-                            <input type="password" name="password" placeholder="🔒 Create password">
+                            <input type="password" name="password" placeholder="🔒 Create password" required>
                         </div>
 
                         <div class="input-group">
-                            <input type="password" name="confirm_password" placeholder="✓ Confirm password">
+                            <input type="password" name="confirm_password" placeholder="✓ Confirm password" required>
                         </div>
 
                         <button type="submit">🚀 Sign Up</button>
@@ -339,6 +339,9 @@
                             <span>Already have an account? </span>
                             <b onclick="toggle()" class="pointer">Sign in here</b>
                         </p>
+                        {% if error %}
+<p style="color:red; font-size:14px;">{{ error }}</p>
+{% endif %}
                     </form>
                 </div>
             </div>
@@ -350,11 +353,11 @@
                 <div class="form sign-in">
                     <form class="sign-in" action="/login" method="POST">
                         <div class="input-group">
-                            <input type="text" name="username" placeholder="👤 Username or email">
+                            <input type="text" name="username" placeholder="👤 Username " required>
                         </div>
 
                         <div class="input-group">
-                            <input type="password" name="password" placeholder="🔐 Password">
+                            <input type="password" name="password" placeholder="🔐 Password" required>
                         </div>
 
                         <button type="submit">✨ Sign In</button>
@@ -363,6 +366,9 @@
                             <span>Don't have an account? </span>
                             <b onclick="toggle()" class="pointer">Sign up here</b>
                         </p>
+                        {% if error %}
+<p style="color:red; font-size:14px;">{{ error }}</p>
+{% endif %}
                     </form>
                 </div>
             </div>
@@ -397,16 +403,12 @@
         }
     }
 
-    // initial animation: start with sign-in view after short delay (as original but theme integrated)
+    
     setTimeout(() => {
         container.classList.add("sign-in");
     }, 180);
 
-    // Add extra micro-interaction: on input focus, playful glow (already in css)
-    // Also prevent accidental form submit on enter? but keep original functionality
-
-    // ensure that if user clicks toggle within sign-in state, it switches cleanly
-    // no extra side effects
+    
     console.log("✨ vibrant theme — purple & coral active ✨");
 </script>
 </body>
