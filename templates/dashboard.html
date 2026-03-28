@@ -24,44 +24,56 @@
     </button>
 </div>
         </div>
-        <div class="text-8xl hidden lg:block select-none" aria-label="Mascot Emoji">🚀</div>
+        <div class="text-8xl hidden lg:block select-none" aria-label="Mascot Emoji"><i class="fa-solid fa-graduation-cap"></i></div>
     </section>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        
-        <a href="{{ url_for('view.chatbot') }}" aria-label="Open AI Tutor Chatbot" 
-           class="glass-card p-6 rounded-3xl hover:border-blue-500/50 transition-all group">
-            <div class="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition">🤖</div>
-            <h3 class="text-xl font-bold mb-2">AI Tutor</h3>
-            <p class="text-sm text-gray-500">Ask questions and get instant, simplified explanations.</p>
-        </a>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
-        <a href="{{ url_for('view.document') }}" aria-label="Go to Document Reader" 
-           class="glass-card p-6 rounded-3xl hover:border-sky-500/50 transition-all group">
-            <div class="w-12 h-12 bg-sky-500/20 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition">📄</div>
-            <h3 class="text-xl font-bold mb-2">Doc Reader</h3>
-            <p class="text-sm text-gray-500">Upload PDFs and listen to them being read aloud.</p>
-        </a>
+    <!-- AI Tutor -->
+    <a href="{{ url_for('view.chatbot') }}" aria-label="Open AI Tutor Chatbot" 
+       class="glass-card p-6 rounded-3xl hover:border-blue-500/50 transition-all group">
+        <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
+            <i class="fa-solid fa-robot"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-1">AI Tutor</h3>
+        <p class="text-sm text-gray-500">Ask questions and get instant, simplified explanations.</p>
+    </a>
 
-        <a href="{{ url_for('view.simplifier') }}" aria-label="Use Visual Learning Tool" 
-           class="glass-card p-6 rounded-3xl hover:border-amber-500/50 transition-all group">
-            <div class="w-12 h-12 bg-amber-500/20 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition">🖼️</div>
-            <h3 class="text-xl font-bold mb-2">Visual Aid</h3>
-            <p class="text-sm text-gray-500">Turn images into descriptive audio explanations.</p>
-        </a>
+    <!-- Doc Reader -->
+    <a href="{{ url_for('view.document') }}" aria-label="Go to Document Reader" 
+       class="glass-card p-6 rounded-3xl hover:border-purple-500/50 transition-all group">
+        <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
+            <i class="fa-solid fa-file-circle-plus"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-1">Doc Reader</h3>
+        <p class="text-sm text-gray-500">Upload PDFs and listen to them being read aloud.</p>
+    </a>
 
-        <a href="{{ url_for('view.activity') }}" aria-label="Check your Progress Statistics" 
-           class="glass-card p-6 rounded-3xl hover:border-indigo-500/50 transition-all group">
-            <div class="w-12 h-12 bg-indigo-500/20 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition">📊</div>
-            <h3 class="text-xl font-bold mb-2">My Stats</h3>
-            <p class="text-sm text-gray-500">Track your daily learning and system usage.</p>
-        </a>
-    </div>
+    <!-- Magic Simplifier -->
+    <a href="{{ url_for('view.simplifier') }}" aria-label="Use Visual Learning Tool" 
+       class="glass-card p-6 rounded-3xl hover:border-green-500/50 transition-all group">
+        <div class="w-10 h-10 bg-green-100 text-green-600 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-1">Magic Simplifier</h3>
+        <p class="text-sm text-gray-500">Convert long texts into easy-to-read summaries instantly.</p>
+    </a>
+
+    <!-- My Stats -->
+    <a href="{{ url_for('view.activity') }}" aria-label="Check your Progress Statistics" 
+       class="glass-card p-6 rounded-3xl hover:border-orange-500/50 transition-all group">
+        <div class="w-10 h-10 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
+            <i class="fa-solid fa-arrow-trend-up"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-1">My Stats</h3>
+        <p class="text-sm text-gray-500">Track your daily learning and system usage.</p>
+    </a>
+</div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         <div class="lg:col-span-1 glass-card p-8 rounded-[2rem] space-y-6">
-            <h3 class="text-xl font-bold">Daily Goal</h3>
+            <h3 class="text-xl font-bold">Daily Goal <i class="fa-solid fa-marker"></i></h3>
             <div class="relative pt-1">
                 <div class="flex mb-2 items-center justify-between">
                     <div><span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full bg-blue-500/20 text-blue-500">Progress</span></div>
@@ -78,14 +90,14 @@
             <h3 class="text-xl font-bold mb-6">Accessibility Tips</h3>
             <div class="space-y-4">
                 <div class="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/5" aria-label="Tip: Use CC button for hover reading">
-                    <div class="text-2xl">💡</div>
+                    <div class="text-2xl"><i class="fa-regular fa-lightbulb"></i></div>
                     <div>
                         <h4 class="font-bold text-blue-400 text-sm">Pro Tip: Smart Reading</h4>
                         <p class="text-xs text-gray-500 mt-1">Press the CC button in the top right to enable "Hover-to-Listen" mode for this entire dashboard.</p>
                     </div>
                 </div>
                 <div class="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/5" aria-label="Tip: Adjust text size for comfort">
-                    <div class="text-2xl">🔍</div>
+                    <div class="text-2xl"><i class="fa-solid fa-magnifying-glass"></i></div>
                     <div>
                         <h4 class="font-bold text-sky-400 text-sm">Visual Comfort</h4>
                         <p class="text-xs text-gray-500 mt-1">Use the A plus and A minus buttons to find a text size that feels natural for your eyes.</p>
