@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>SunoPadho | Authenticate</title>
     <style>
-        /* ----- REBRANDED THEME: Vibrant Purple & Coral ----- */
+        /* ----- UNIVERSAL THEME: High-Contrast Blue & Amber ----- */
         :root {
-            --primary-color: #c026d3;      /* bold fuchsia-purple */
-            --secondary-color: #f43f5e;    /* electric coral red */
+            --primary-color: #1e88e5;      /* strong accessible blue */
+            --secondary-color: #ffb300;    /* highly visible amber */
             --black: #0f0f12;
             --white: #ffffff;
             --gray: #f9f9fc;
@@ -20,8 +20,8 @@
             --insta-color: #E1306C;
 
             /* additional accent */
-            --glow-effect: rgba(192, 38, 211, 0.25);
-            --input-focus: #f43f5e;
+            --glow-effect: rgba(30, 136, 229, 0.25);
+            --input-focus: #1e88e5;
         }
 
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800&display=swap');
@@ -75,7 +75,7 @@
             background-color: var(--white);
             border-radius: 2rem;
             width: 100%;
-            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(192, 38, 211, 0.1);
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(30, 136, 229, 0.15);
             transform: scale(0);
             transition: 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
             transition-delay: 0.9s;
@@ -118,12 +118,12 @@
             font-weight: 600;
             letter-spacing: 0.5px;
             transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 8px 18px rgba(192, 38, 211, 0.3);
+            box-shadow: 0 8px 18px rgba(30, 136, 229, 0.35);
         }
 
         .form button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(244, 63, 94, 0.35);
+            box-shadow: 0 12px 24px rgba(255, 179, 0, 0.35);
         }
 
         .form p {
@@ -194,7 +194,7 @@
             transform: translateX(0);
         }
 
-        /* NEW ANIMATED GRADIENT (replaces old blue gradient) */
+        /* NEW ANIMATED GRADIENT (Accessible Blue & Amber) */
         .container::before {
             content: "";
             position: absolute;
@@ -203,8 +203,8 @@
             height: 100vh;
             width: 300vw;
             transform: translate(35%, 0);
-            background: radial-gradient(circle at 30% 10%, rgba(192, 38, 211, 0.95), rgba(244, 63, 94, 0.9)),
-                        linear-gradient(125deg, #c026d3, #f43f5e, #a21caf);
+            background: radial-gradient(circle at 30% 10%, rgba(30, 136, 229, 0.95), rgba(255, 179, 0, 0.8)),
+                        linear-gradient(125deg, #1e88e5, #005cb2, #ffb300);
             background-blend-mode: overlay;
             transition: 1.2s cubic-bezier(0.23, 1, 0.32, 1);
             z-index: 6;
@@ -239,7 +239,7 @@
                 z-index: 0;
                 transform: none;
                 right: 0;
-                background: linear-gradient(145deg, #c026d3, #f43f5e);
+                background: linear-gradient(145deg, #1e88e5, #ffb300);
             }
 
             .col {
@@ -409,7 +409,7 @@
     }, 180);
 
     
-    console.log("✨ vibrant theme — purple & coral active ✨");
+    console.log("✨ universal accessible theme — blue & amber active ✨");
 </script>
 </body>
 </html>

@@ -17,17 +17,25 @@
         /* Themes */
         body.dark { background: #070a13; color: #f8fafc; }
         body.light { background: #f8fafc; color: #0f172a; }
-        body.cb { background: #000000; color: #ffff00; } 
+        
+        /* Strict High Contrast Colorblind Mode */
+        body.cb { background: #000000 !important; color: #ffff00 !important; } 
+        body.cb * { color: #ffff00 !important; border-color: #ffff00 !important; text-shadow: none !important; box-shadow: none !important; }
+        body.cb .glass-card, body.cb input, body.cb select, body.cb textarea, body.cb .header-btn { background: #000000 !important; border: 2px solid #ffff00 !important; }
+        body.cb .active-nav { background: #ffff00 !important; color: #000000 !important; border: 2px solid #ffff00 !important; font-weight: 900 !important; }
+        body.cb .sidebar { background: #000000 !important; border-right: 2px solid #ffff00 !important; }
+        body.cb .nav-link:not(.active-nav) { color: #ffff00 !important; }
 
         .sidebar { width: 85px; background: var(--sidebar); border-right: 1px solid rgba(255,255,255,0.05); }
         .glass-card { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
         
         .nav-link { position: relative; transition: all 0.3s ease; }
         .nav-link:hover { transform: translateY(-3px); color: white; }
-        .active-nav { background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3); color: white !important; }
+        /* Colorblind-safe primary blue gradient (avoiding red/green/purple blends) */
+        .active-nav { background: linear-gradient(135deg, #1e88e5 0%, #005cb2 100%); box-shadow: 0 8px 20px rgba(30, 136, 229, 0.4); color: white !important; }
 
         /* Hover Reader Outline */
-        .reader-focus { outline: 3px solid #3b82f6 !important; outline-offset: 4px; border-radius: 8px; transition: outline 0.1s ease; }
+        .reader-focus { outline: 4px solid #ffb300 !important; outline-offset: 4px; border-radius: 8px; transition: outline 0.1s ease; }
         
         .header-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); transition: 0.2s; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; }
         .header-btn:hover { background: rgba(255,255,255,0.15); transform: scale(1.05); }
@@ -38,7 +46,7 @@
 
 <aside class="sidebar flex flex-col items-center py-8 space-y-10 h-screen sticky top-0 z-50">
     <div class="group relative" aria-label="Soon-oh Pud-ho Platform Logo">
-        <div class="text-3xl font-extrabold bg-gradient-to-br from-blue-400 to-purple-500 bg-clip-text text-transparent transform group-hover:scale-110 transition"><i class="fa-solid fa-book-open-reader"></i></div>
+        <div class="text-3xl font-extrabold bg-gradient-to-br from-blue-400 to-amber-500 bg-clip-text text-transparent transform group-hover:scale-110 transition"><i class="fa-solid fa-book-open-reader"></i></div>
     </div>
     
     <nav class="flex flex-col space-y-6 w-full items-center">
@@ -81,7 +89,7 @@
             </div>
             
             <button id="spkBtn" onclick="readMainContent()" 
-        class="header-btn text-base text-green-400" 
+        class="header-btn text-base text-amber-400" 
         style="width:2.5rem; height:2.7rem;" 
         aria-label="Listen to page summary">🔊</button>
         </div>
@@ -108,6 +116,9 @@ const state = {
 const synth = window.speechSynthesis;
 
 function applyState() {
+    // 0. Apply theme to body
+    document.body.className = state.th;
+
     // 1. Set root font size (everything uses rem)
     document.documentElement.style.fontSize = state.fs + 'px';
 
