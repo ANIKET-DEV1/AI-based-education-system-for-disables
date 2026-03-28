@@ -1,10 +1,7 @@
 import os
 from groq import Groq
-from dotenv import load_dotenv
 
-load_dotenv()
-
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+client = Groq(api_key="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")
 
 def get_magic_data(complex_text):
     """

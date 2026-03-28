@@ -195,7 +195,7 @@ def chatbot_ask():
         message = data.get('message', '')
 
         from groq import Groq
-        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        client = Groq(api_key="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")
 
         completion = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
