@@ -1,91 +1,140 @@
 {% extends "base.html" %}
+
 {% block title %}Document Reader | SunoPadho{% endblock %}
-{% block header %}Document Reader{% endblock %}
+{% block header %}📄 Document Reader{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto space-y-8">
+<div id="documentRoot" class="max-w-4xl mx-auto space-y-8">
 
-    <div class="glass-card rounded-[2rem] p-8 border-l-4 border-sky-500">
-        <h3 class="text-xl font-bold mb-2">Upload & Summarize PDF</h3>
-        <p class="text-sm text-gray-400 mb-6">Upload a PDF document and get an AI-powered summary with voice support.</p>
-
-        <div class="space-y-4">
-            <div class="border-2 border-dashed border-white/10 rounded-2xl p-8 text-center cursor-pointer hover:border-sky-500/50 transition"
-                 onclick="document.getElementById('pdfFile').click()">
-                <div class="text-4xl mb-3">📄</div>
-                <p id="fileLabel" class="text-gray-400">Click to upload PDF</p>
-                <input type="file" id="pdfFile" hidden accept=".pdf" onchange="updateFileName()">
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <select id="summaryType" class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white">
-                    <option value="Short" class="bg-gray-900">Short Summary</option>
-                    <option value="Detailed" class="bg-gray-900">Detailed Summary</option>
-                </select>
-                <select id="format" class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white">
-                    <option value="Paragraph" class="bg-gray-900">Paragraph</option>
-                    <option value="Bullet Points" class="bg-gray-900">Bullet Points</option>
-                </select>
-                <select id="language" class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white">
-                    <option value="Normal English" class="bg-gray-900">Normal English</option>
-                    <option value="Easy Language" class="bg-gray-900">Easy Language</option>
-                    <option value="Hindi" class="bg-gray-900">Hindi</option>
-                </select>
-            </div>
-
-            <button onclick="summarizePDF()" id="sumBtn" class="active-nav w-full py-4 rounded-2xl font-bold text-xl transition transform active:scale-95">
-                ✨ Summarize with AI
-            </button>
+    <div class="glass-card p-10 rounded-[2.5rem] space-y-8 border-t-8 border-[var(--primary)] transition-all duration-500">
+        <div class="space-y-2">
+            <h3 class="text-2xl font-black tracking-tight text-[var(--text)]">
+                AI PDF Assistant
+            </h3>
+            <p class="text-sm text-[var(--muted)]">
+                Upload your study material to generate a clear summary with built-in voice support.
+            </p>
         </div>
+
+        <div onclick="document.getElementById('pdfFile').click()"
+             class="group border-4 border-dashed border-[var(--border)] rounded-[2rem] p-10 text-center cursor-pointer hover:border-[var(--primary)] hover:bg-[var(--primary-soft)] transition-all duration-300">
+            
+            <div class="text-5xl mb-4 group-hover:scale-125 transition-transform duration-300">
+                <i class="fa-solid fa-cloud-arrow-up text-[var(--primary)]"></i>
+            </div>
+            <p id="fileLabel" class="text-lg font-bold text-[var(--text)]">
+                Drop your PDF here
+            </p>
+            <p class="text-xs text-[var(--muted)] mt-1 uppercase tracking-widest">or click to browse</p>
+
+            <input type="file" id="pdfFile" hidden accept=".pdf" onchange="updateFileName()">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-[var(--muted)] ml-2">Detail Level</label>
+                <select id="summaryType" class="w-full bg-[var(--bg)] border-2 border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text)] focus:border-[var(--primary)] outline-none appearance-none cursor-pointer">
+                    <option value="Short">Quick Summary</option>
+                    <option value="Detailed">Deep Dive</option>
+                </select>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-[var(--muted)] ml-2">Format</label>
+                <select id="format" class="w-full bg-[var(--bg)] border-2 border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text)] focus:border-[var(--primary)] outline-none appearance-none cursor-pointer">
+                    <option value="Paragraph">Paragraphs</option>
+                    <option value="Bullet Points">Key Bullets</option>
+                </select>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-[var(--muted)] ml-2">Language</label>
+                <select id="language" class="w-full bg-[var(--bg)] border-2 border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text)] focus:border-[var(--primary)] outline-none appearance-none cursor-pointer">
+                    <option value="Normal English">English</option>
+                    <option value="Easy Language">Simple English</option>
+                    <option value="Hindi">Hindi (हिंदी)</option>
+                </select>
+            </div>
+        </div>
+
+        <button onclick="summarizePDF()" id="sumBtn"
+            class="w-full py-5 rounded-2xl font-black text-white bg-[var(--primary)] shadow-xl shadow-[var(--primary)]/20 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+            <i class="fa-solid fa-sparkles"></i>
+            <span>Magic Summarize</span>
+        </button>
     </div>
 
-    <div id="resultSection" class="hidden space-y-6">
-        <div class="glass-card rounded-[2rem] p-8 border-l-4 border-amber-500">
-            <div class="flex justify-between items-center mb-4">
-                <h4 class="text-xs font-bold text-amber-400 uppercase">Summary</h4>
-                <button onclick="copySummary()" class="text-xs text-gray-400 hover:text-white transition">📋 Copy</button>
+    <div id="resultSection" class="hidden animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-6 pb-20">
+        
+        <div class="glass-card p-8 rounded-[2rem] bg-gradient-to-br from-[var(--surface)] to-[var(--primary-soft)] border-2 border-[var(--primary)]/20">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-[var(--primary)] text-white flex items-center justify-center">
+                        <i class="fa-solid fa-align-left text-xs"></i>
+                    </div>
+                    <h4 class="font-black text-lg text-[var(--text)] uppercase tracking-tighter">AI Summary</h4>
+                </div>
+
+                <div class="flex gap-2">
+                    <button onclick="copySummary()" class="p-2 rounded-lg bg-[var(--bg)] border border-[var(--border)] hover:text-[var(--primary)] transition-colors" title="Copy Text">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                    <button onclick="readSummaryAloud()" class="p-2 rounded-lg bg-[var(--primary)] text-white shadow-md hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                </div>
             </div>
-            <p id="summaryText" class="text-lg leading-relaxed"></p>
+
+            <p id="summaryText" class="text-base leading-relaxed text-[var(--text)] font-medium"></p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="glass-card rounded-[2rem] p-8 border-l-4 border-blue-500">
-                <h4 class="text-xs font-bold text-blue-400 uppercase mb-4">Key Points</h4>
-                <ul id="bulletList" class="space-y-2 text-sm"></ul>
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="glass-card p-8 rounded-[2rem] border-b-4 border-[var(--accent)]">
+                <h4 class="font-black text-[var(--accent)] text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-thumbtack"></i> Key Points
+                </h4>
+                <ul id="bulletList" class="space-y-4 text-[var(--text)] text-sm font-medium"></ul>
             </div>
-            <div class="glass-card rounded-[2rem] p-8 border-l-4 border-indigo-500">
-                <h4 class="text-xs font-bold text-indigo-400 uppercase mb-4">Key Concepts</h4>
-                <ul id="conceptList" class="space-y-2 text-sm"></ul>
+
+            <div class="glass-card p-8 rounded-[2rem] border-b-4 border-[var(--primary)]">
+                <h4 class="font-black text-[var(--primary)] text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-brain"></i> Core Concepts
+                </h4>
+                <ul id="conceptList" class="space-y-4 text-[var(--text)] text-sm font-medium"></ul>
             </div>
         </div>
 
-        <div class="glass-card rounded-[2rem] p-6 border-l-4 border-amber-500 flex items-center justify-center gap-4">
-            <p class="text-sm text-gray-400">Listen to summary:</p>
-            <button onclick="readSummaryAloud()" class="w-14 h-14 rounded-full bg-amber-500/20 border border-amber-500/50 flex items-center justify-center text-2xl hover:scale-110 transition-all">
-                🔊
-            </button>
-        </div>
     </div>
-
 </div>
+
+<style>
+    /* Custom Dropdown Arrow */
+    select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1em;
+    }
+</style>
 
 <script>
 function updateFileName() {
     const file = document.getElementById('pdfFile').files[0];
     if (file) {
-        document.getElementById('fileLabel').innerText = 'Selected: ' + file.name;
+        document.getElementById('fileLabel').innerHTML = `<span class="text-[var(--primary)]">${file.name}</span>`;
     }
 }
 
 async function summarizePDF() {
     const file = document.getElementById('pdfFile').files[0];
     if (!file) {
-        if (typeof speak === 'function') speak('Please upload a PDF file first.');
+        speak("Please select a file first");
         return;
     }
 
     const btn = document.getElementById('sumBtn');
-    btn.innerText = '🧠 Summarizing...';
+    btn.innerHTML = '<i class="fa-solid fa-circle-notch animate-spin"></i> <span>Processing AI Magic...</span>';
+    btn.disabled = true;
 
     const formData = new FormData();
     formData.append('file', file);
@@ -104,36 +153,47 @@ async function summarizePDF() {
         const bulletList = document.getElementById('bulletList');
         bulletList.innerHTML = '';
         (data.bullets || []).forEach(b => {
-            bulletList.innerHTML += `<li class="flex gap-2"><span class="text-blue-400">•</span> ${b}</li>`;
+            bulletList.innerHTML += `
+                <li class="flex gap-3">
+                    <span class="text-[var(--accent)] mt-1"><i class="fa-solid fa-check-circle text-[10px]"></i></span>
+                    <span class="leading-tight">${b}</span>
+                </li>`;
         });
 
         const conceptList = document.getElementById('conceptList');
         conceptList.innerHTML = '';
         (data.concepts || []).forEach(c => {
-            conceptList.innerHTML += `<li class="flex gap-2"><span class="text-indigo-400">•</span> ${c}</li>`;
+            conceptList.innerHTML += `
+                <li class="flex gap-3">
+                    <span class="text-[var(--primary)] mt-1"><i class="fa-solid fa-bolt text-[10px]"></i></span>
+                    <span class="leading-tight">${c}</span>
+                </li>`;
         });
 
         document.getElementById('resultSection').classList.remove('hidden');
-        btn.innerText = '✨ Summarize with AI';
+        document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+        speak("Summary ready. Would you like me to read it?");
 
-        if (typeof speak === 'function') speak('Summary ready. ' + data.summary.substring(0, 200));
-
-    } catch(e) {
+    } catch (e) {
         console.error(e);
-        btn.innerText = '✨ Summarize with AI';
-        if (typeof speak === 'function') speak('Error summarizing the PDF. Please try again.');
+        speak("Sorry, something went wrong with the document analysis.");
     }
+
+    btn.innerHTML = '<i class="fa-solid fa-sparkles"></i> <span>Magic Summarize</span>';
+    btn.disabled = false;
 }
 
 function copySummary() {
-    const text = document.getElementById('summaryText').innerText;
-    navigator.clipboard.writeText(text);
-    if (typeof speak === 'function') speak('Summary copied!');
+    navigator.clipboard.writeText(document.getElementById('summaryText').innerText);
+    speak("Text copied to clipboard");
 }
 
 function readSummaryAloud() {
     const text = document.getElementById('summaryText').innerText;
-    if (text && typeof speak === 'function') speak(text);
+    if (text && typeof speak === 'function') {
+        speak(text);
+    }
 }
 </script>
+
 {% endblock %}

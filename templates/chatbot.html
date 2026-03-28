@@ -5,25 +5,34 @@
 {% block content %}
 <div class="max-w-4xl mx-auto space-y-6">
 
-    <div class="glass-card rounded-[2rem] p-8 border-l-4 border-blue-500">
-        <h3 class="text-xl font-bold mb-2">Need Help?</h3>
-        <p class="text-sm text-gray-400 mb-6">Ask me anything about how to use SunoPadho — features, accessibility, navigation & more.</p>
+    <div class="glass-card rounded-[2rem] p-8 border-l-8 border-[var(--primary)] transition-all duration-500">
+        <div class="mb-8">
+            <h3 class="text-2xl font-black mb-2">Need Help?</h3>
+            <p class="text-sm text-[var(--muted)]">Ask me anything about SunoPadho—features, accessibility, or how to get started.</p>
+        </div>
 
-        <div id="chatMessages" class="space-y-4 max-h-[400px] overflow-y-auto mb-6 p-4 rounded-2xl bg-white/5">
-            <div class="flex gap-3">
-                <div class="text-2xl">🤖</div>
-                <div class="glass-card p-4 rounded-2xl max-w-[80%]">
-                    <p class="text-sm">Hi there! 👋 I'm your SunoPadho guide. Ask me how to use any feature — like the Magic Simplifier, Quiz Generator, PDF Summarizer, or accessibility tools!</p>
+        <div id="chatMessages" class="space-y-6 max-h-[450px] overflow-y-auto mb-8 p-6 rounded-3xl bg-[var(--bg)] border border-[var(--border)] scroll-smooth">
+            <div class="flex gap-4 items-start">
+                <div class="w-10 h-10 rounded-full bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center flex-shrink-0 border border-[var(--primary)]/20 shadow-sm">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div class="glass-card p-5 rounded-2xl rounded-tl-none max-w-[85%] shadow-sm">
+                    <p class="text-sm leading-relaxed">Hi there! 👋 I'm your <b>SunoPadho</b> guide. Ask me how to use the Magic Simplifier, Doc Reader, or how to toggle the smart accessibility tools!</p>
                 </div>
             </div>
         </div>
 
-        <div class="flex gap-3">
-            <input id="chatInput" type="text" placeholder="e.g. How do I simplify text? What does the CC button do?"
-                   class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                   onkeypress="if(event.key==='Enter')sendChat()">
-            <button onclick="sendChat()" class="active-nav px-8 rounded-2xl font-bold transition transform active:scale-95">
-                Send
+        <div class="flex flex-col md:flex-row gap-3">
+            <div class="relative flex-1">
+                <input id="chatInput" type="text" 
+                    placeholder="e.g. How do I use the Doc Reader?"
+                    class="w-full bg-[var(--surface)] border-2 border-[var(--border)] rounded-2xl px-6 py-4 text-[var(--text)] focus:outline-none focus:border-[var(--primary)] transition-all placeholder:text-[var(--muted)]"
+                    onkeypress="if(event.key==='Enter')sendChat()">
+            </div>
+            <button onclick="sendChat()" 
+                class="bg-[var(--primary)] text-white px-8 py-4 rounded-2xl font-black shadow-lg shadow-[var(--primary)]/20 hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2">
+                <span>Send</span>
+                <i class="fa-solid fa-paper-plane text-xs"></i>
             </button>
         </div>
     </div>
@@ -38,28 +47,32 @@ async function sendChat() {
 
     const container = document.getElementById('chatMessages');
 
-    // Add user message
+    // Add User Message (Right Side)
     container.innerHTML += `
-        <div class="flex gap-3 justify-end">
-            <div class="glass-card p-4 rounded-2xl max-w-[80%] border border-blue-500/30">
-                <p class="text-sm">${msg}</p>
+        <div class="flex gap-4 items-start justify-end">
+            <div class="bg-[var(--primary)] text-white p-5 rounded-2xl rounded-tr-none max-w-[85%] shadow-md">
+                <p class="text-sm leading-relaxed font-medium">${msg}</p>
             </div>
-            <div class="text-2xl">👤</div>
+            <div class="w-10 h-10 rounded-full bg-[var(--border)] text-[var(--text)] flex items-center justify-center flex-shrink-0 border border-[var(--primary)]/10">
+                <i class="fa-solid fa-user text-sm"></i>
+            </div>
         </div>`;
 
     input.value = '';
-    container.scrollTop = container.scrollHeight;
+    container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
 
-    // Add loading indicator
+    // Add Thinking Indicator
     const loadingId = 'loading-' + Date.now();
     container.innerHTML += `
-        <div id="${loadingId}" class="flex gap-3">
-            <div class="text-2xl">🤖</div>
-            <div class="glass-card p-4 rounded-2xl">
-                <p class="text-sm text-gray-400">Thinking...</p>
+        <div id="${loadingId}" class="flex gap-4 items-start">
+            <div class="w-10 h-10 rounded-full bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid fa-robot animate-bounce"></i>
+            </div>
+            <div class="glass-card p-5 rounded-2xl rounded-tl-none italic text-[var(--muted)] text-sm">
+                Thinking...
             </div>
         </div>`;
-    container.scrollTop = container.scrollHeight;
+    container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
 
     try {
         const res = await fetch('/chatbot-ask', {
@@ -73,25 +86,32 @@ async function sendChat() {
         document.getElementById(loadingId).remove();
 
         const reply = data.success ? data.reply : 'Sorry, I encountered an error. Please try again.';
+        
+        // Add Bot Reply
         container.innerHTML += `
-            <div class="flex gap-3">
-                <div class="text-2xl">🤖</div>
-                <div class="glass-card p-4 rounded-2xl max-w-[80%]">
-                    <p class="text-sm">${reply}</p>
+            <div class="flex gap-4 items-start">
+                <div class="w-10 h-10 rounded-full bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center flex-shrink-0 border border-[var(--primary)]/20">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div class="glass-card p-5 rounded-2xl rounded-tl-none max-w-[85%] shadow-sm">
+                    <p class="text-sm leading-relaxed">${reply}</p>
                 </div>
             </div>`;
-        container.scrollTop = container.scrollHeight;
+        
+        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
 
-        // Read aloud if CC mode is on
+        // Trigger Global Speech Engine from base.html
         if (typeof speak === 'function') speak(reply);
 
     } catch(e) {
-        document.getElementById(loadingId).remove();
+        if(document.getElementById(loadingId)) document.getElementById(loadingId).remove();
         container.innerHTML += `
-            <div class="flex gap-3">
-                <div class="text-2xl">🤖</div>
-                <div class="glass-card p-4 rounded-2xl border border-red-500/30">
-                    <p class="text-sm text-red-400">Connection error. Please check your internet and try again.</p>
+            <div class="flex gap-4 items-start">
+                <div class="w-10 h-10 rounded-full bg-red-100 text-red-500 flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div class="glass-card p-5 rounded-2xl rounded-tl-none border-red-500/20 text-red-500 text-sm">
+                    Connection error. Please check your internet and try again.
                 </div>
             </div>`;
     }

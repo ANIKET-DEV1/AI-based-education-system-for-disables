@@ -3,77 +3,114 @@
 {% block header %}My Activity{% endblock %}
 
 {% block content %}
-<div class="space-y-8">
+<div class="space-y-10">
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="glass-card p-6 rounded-3xl text-center">
-            <div class="text-4xl font-extrabold text-blue-500">{{ stats.lessons }}</div>
-            <p class="text-sm text-gray-400 mt-2">Lessons Created</p>
+        <div class="glass-card p-8 rounded-[2rem] text-center transform hover:scale-105 transition-all duration-300 border-b-4 border-[var(--primary)]">
+            <div class="text-5xl font-black text-[var(--primary)]">{{ stats.lessons }}</div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-[var(--muted)] mt-3">Lessons Created</p>
         </div>
-        <div class="glass-card p-6 rounded-3xl text-center">
-            <div class="text-4xl font-extrabold text-amber-500">{{ stats.completed }}</div>
-            <p class="text-sm text-gray-400 mt-2">Completed</p>
+        
+        <div class="glass-card p-8 rounded-[2rem] text-center transform hover:scale-105 transition-all duration-300 border-b-4 border-[var(--accent)]">
+            <div class="text-5xl font-black text-[var(--accent)]">{{ stats.completed }}</div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-[var(--muted)] mt-3">Tasks Completed</p>
         </div>
-        <div class="glass-card p-6 rounded-3xl text-center">
-            <div class="text-4xl font-extrabold text-sky-500">{{ stats.avg_score }}%</div>
-            <p class="text-sm text-gray-400 mt-2">Avg Score</p>
+        
+        <div class="glass-card p-8 rounded-[2rem] text-center transform hover:scale-105 transition-all duration-300 border-b-4 border-[var(--primary)]">
+            <div class="text-5xl font-black text-[var(--text)]">{{ stats.avg_score }}%</div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-[var(--muted)] mt-3">Average Score</p>
         </div>
     </div>
 
-    <!-- Smart AI Feedback Panel -->
-    <div class="glass-card p-8 rounded-[2rem] border-l-4 border-blue-500 bg-gradient-to-r from-blue-500/10 to-transparent relative overflow-hidden transition-all duration-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.2)]">
-        <div class="absolute -right-4 -top-4 text-9xl opacity-10 transform -rotate-12">🤖</div>
-        <h3 class="text-xl font-bold mb-3 text-blue-400 drop-shadow-md"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Tutor Feedback</h3>
-        <p class="text-gray-200 leading-relaxed text-lg" aria-label="Tutor Feedback text">
+    <div class="glass-card p-10 rounded-[3rem] border-l-8 border-[var(--primary)] bg-gradient-to-br from-[var(--primary-soft)] to-transparent relative overflow-hidden group shadow-xl shadow-[var(--primary)]/5">
+        <div class="absolute -right-6 -top-6 text-9xl opacity-10 transform -rotate-12 group-hover:rotate-0 transition-transform duration-700 text-[var(--primary)]">
+            <i class="fa-solid fa-robot"></i>
+        </div>
+        
+        <h3 class="text-xl font-black mb-4 text-[var(--primary)] flex items-center gap-3">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> 
+            <span>AI Tutor Insights</span>
+        </h3>
+        
+        <p class="text-[var(--text)] leading-relaxed text-xl font-medium relative z-10" aria-label="Tutor Feedback">
             {% if stats.avg_score >= 80 %}
-                Outstanding work! Your average score of <strong>{{ stats.avg_score }}%</strong> is phenomenal. You are deeply understanding the simplified materials. Keep using the Magic Simplifier for tough concepts!
+                Outstanding work! Your average score of <span class="text-[var(--primary)] font-black">{{ stats.avg_score }}%</span> is phenomenal. You are deeply understanding the simplified materials. Keep using the Magic Simplifier for tough concepts!
             {% elif stats.avg_score > 0 %}
-                You are making steady progress! Try using the Doc Reader's Voice feature if you find reading long texts tiring.
+                You are making steady progress! Try using the <b>Doc Reader's Voice</b> feature if you find reading long texts tiring.
             {% else %}
                 Welcome to your learning journey! Start by uploading a document or asking the AI Tutor a question to get your stats moving.
             {% endif %}
         </p>
     </div>
 
-    <div class="glass-card p-8 rounded-[2rem]">
-        <h3 class="text-xl font-bold mb-6">Recent Progress</h3>
+    <div class="glass-card p-10 rounded-[3rem] shadow-sm">
+        <div class="flex items-center justify-between mb-8">
+            <h3 class="text-xl font-black tracking-tight">Recent Progress</h3>
+            <i class="fa-solid fa-timeline text-[var(--muted)]"></i>
+        </div>
+
         {% if progress %}
         <div class="space-y-4">
             {% for score, level, title in progress %}
-            <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
-                <div>
-                    <h4 class="font-bold">{{ title }}</h4>
-                    <p class="text-xs text-gray-500">Level: {{ level }}</p>
+            <div class="flex items-center justify-between p-6 rounded-[1.5rem] bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition-all group">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center font-black">
+                        {{ loop.index }}
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-[var(--text)]">{{ title }}</h4>
+                        <p class="text-[10px] uppercase font-black tracking-widest text-[var(--muted)]">Complexity: {{ level }}</p>
+                    </div>
                 </div>
-                <div class="text-blue-400 font-bold">{{ score }}%</div>
+                <div class="text-2xl font-black text-[var(--primary)] group-hover:scale-110 transition-transform">
+                    {{ score }}%
+                </div>
             </div>
             {% endfor %}
         </div>
         {% else %}
-        <p class="text-gray-500 text-center py-8">No activity yet. Start learning to see your progress here!</p>
+        <div class="text-center py-12">
+            <div class="text-5xl opacity-20 mb-4 text-[var(--muted)]"><i class="fa-solid fa-seedling"></i></div>
+            <p class="text-[var(--muted)] font-bold">No activity recorded yet. Time to start your first lesson!</p>
+        </div>
         {% endif %}
     </div>
 
 </div>
-</div>
+
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script>
-    // Trigger confetti on load to celebrate their progress!
     window.onload = () => {
+        // Only celebrate if they have progress
         {% if stats.avg_score > 0 %}
-        const duration = 2.5 * 1000;
+        const duration = 3 * 1000;
         const end = Date.now() + duration;
 
+        // Dynamic Confetti Colors based on theme!
+        const colors = (document.body.classList.contains('cb')) 
+            ? ['#ec4899', '#10b981', '#ffffff'] // Pink & Mint
+            : ['#2563eb', '#f59e0b', '#818cf8']; // Standard Blue/Amber
+
         (function frame() {
-            confetti({ particleCount: 6, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#818CF8', '#F472B6', '#34D399', '#FBBC05'] });
-            confetti({ particleCount: 6, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#818CF8', '#F472B6', '#34D399', '#FBBC05'] });
+            confetti({ 
+                particleCount: 4, 
+                angle: 60, 
+                spread: 55, 
+                origin: { x: 0, y: 0.8 }, 
+                colors: colors 
+            });
+            confetti({ 
+                particleCount: 4, 
+                angle: 120, 
+                spread: 55, 
+                origin: { x: 1, y: 0.8 }, 
+                colors: colors 
+            });
             if (Date.now() < end) requestAnimationFrame(frame);
         }());
         {% endif %}
         
-        if (typeof speak === 'function') {
-            setTimeout(() => speak("Here are your learning statistics. Great job so far!"), 500);
-        }
+        
     };
 </script>
 {% endblock %}

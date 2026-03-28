@@ -1,106 +1,114 @@
 {% extends "base.html" %}
 
 {% block title %}Dashboard | SunoPadho{% endblock %}
-
 {% block header %}Welcome Back{% endblock %}
 
 {% block content %}
 <div class="space-y-10">
-    
-    <section class="glass-card rounded-[2rem] p-10 flex flex-col md:flex-row items-center justify-between gap-8 border-l-4 border-l-blue-500">
-        <div class="space-y-4 max-w-2xl">
-            <h2 class="text-4xl font-extrabold tracking-tight">Ready to learn, <span class="text-blue-500">Explorer?</span></h2>
-            <p class="text-gray-400 text-lg leading-relaxed">
-                Your AI-powered accessible learning companion is ready. Upload a document, chat with your tutor, or analyze images—all with voice support.
+
+    <section class="glass-card p-10 rounded-3xl flex flex-col md:flex-row justify-between items-center gap-8 border-l-8 border-[var(--primary)] transition-all duration-500">
+        
+        <div class="space-y-5 max-w-xl">
+            <h2 class="text-4xl font-black tracking-tight">
+                Ready to learn, <span class="text-[var(--primary)]">Explorer?</span>
+            </h2>
+
+            <p class="text-base text-[var(--muted)] leading-relaxed">
+                Your AI learning companion is ready. Chat, upload documents, or simplify content—all with built-in voice support and accessible views.
             </p>
-        <div class="flex gap-4 pt-2">
-    <button aria-label="Start Learning Now" 
-            class="active-nav text-base rounded-xl font-bold transition transform hover:scale-105">
-        Start Learning
-    </button>
-    <button aria-label="View your recent activity" 
-            class="header-btn text-base font-semibold">
-        View Activity
-    </button>
-</div>
+
+            <div class="flex gap-4 pt-4">
+                <button class="px-8 py-3 rounded-2xl font-bold bg-[var(--primary)] text-white hover:opacity-90 transform hover:-translate-y-1 transition-all shadow-lg shadow-[var(--primary)]/20">
+                    Start Learning
+                </button>
+                <button class="px-8 py-3 rounded-2xl font-bold border-2 border-[var(--border)] text-[var(--text)] hover:bg-[var(--primary-soft)] transition-all" onclick="window.location.href='{{ url_for('view.activity') }}'">
+                    View Activity
+                </button>
+            </div>
         </div>
-        <div class="text-8xl hidden lg:block select-none" aria-label="Mascot Emoji"><i class="fa-solid fa-graduation-cap"></i></div>
+
+        <div class="text-8xl hidden lg:block text-[var(--primary)] opacity-20 transform -rotate-12">
+            <i class="fa-solid fa-graduation-cap"></i>
+        </div>
     </section>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
-    <!-- AI Tutor -->
-    <a href="{{ url_for('view.chatbot') }}" aria-label="Open AI Tutor Chatbot" 
-       class="glass-card p-6 rounded-3xl hover:border-blue-500/50 transition-all group">
-        <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
-            <i class="fa-solid fa-robot"></i>
-        </div>
-        <h3 class="text-xl font-bold mb-1">AI Tutor</h3>
-        <p class="text-sm text-gray-500">Ask questions and get instant, simplified explanations.</p>
-    </a>
+        <a href="{{ url_for('view.chatbot') if url_for is defined else '#' }}" 
+           class="glass-card p-8 rounded-3xl hover:border-[var(--primary)] hover:-translate-y-2 transition-all duration-300 group">
+            <div class="w-14 h-14 bg-[var(--primary-soft)] text-[var(--primary)] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-robot text-2xl"></i>
+            </div>
+            <h3 class="font-extrabold text-lg mb-2">AI Tutor</h3>
+            <p class="text-sm text-[var(--muted)]">Ask questions and get simple answers instantly via voice.</p>
+        </a>
 
-    <!-- Doc Reader -->
-    <a href="{{ url_for('view.document') }}" aria-label="Go to Document Reader" 
-       class="glass-card p-6 rounded-3xl hover:border-purple-500/50 transition-all group">
-        <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
-            <i class="fa-solid fa-file-circle-plus"></i>
-        </div>
-        <h3 class="text-xl font-bold mb-1">Doc Reader</h3>
-        <p class="text-sm text-gray-500">Upload PDFs and listen to them being read aloud.</p>
-    </a>
+        <a href="{{ url_for('view.document') if url_for is defined else '#' }}" 
+           class="glass-card p-8 rounded-3xl hover:border-[var(--primary)] hover:-translate-y-2 transition-all duration-300 group">
+            <div class="w-14 h-14 bg-[var(--primary-soft)] text-[var(--primary)] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-file-audio text-2xl"></i>
+            </div>
+            <h3 class="font-extrabold text-lg mb-2">Doc Reader</h3>
+            <p class="text-sm text-[var(--muted)]">Upload PDFs and listen to them like an audiobook.</p>
+        </a>
 
-    <!-- Magic Simplifier -->
-    <a href="{{ url_for('view.simplifier') }}" aria-label="Use Visual Learning Tool" 
-       class="glass-card p-6 rounded-3xl hover:border-green-500/50 transition-all group">
-        <div class="w-10 h-10 bg-green-100 text-green-600 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
-            <i class="fa-solid fa-wand-magic-sparkles"></i>
-        </div>
-        <h3 class="text-xl font-bold mb-1">Magic Simplifier</h3>
-        <p class="text-sm text-gray-500">Convert long texts into easy-to-read summaries instantly.</p>
-    </a>
+        <a href="{{ url_for('view.simplifier') if url_for is defined else '#' }}" 
+           class="glass-card p-8 rounded-3xl hover:border-[var(--primary)] hover:-translate-y-2 transition-all duration-300 group">
+            <div class="w-14 h-14 bg-[var(--primary-soft)] text-[var(--primary)] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-wand-magic-sparkles text-2xl"></i>
+            </div>
+            <h3 class="font-extrabold text-lg mb-2">Simplifier</h3>
+            <p class="text-sm text-[var(--muted)]">Turn complex jargon into easy-to-read summaries.</p>
+        </a>
 
-    <!-- My Stats -->
-    <a href="{{ url_for('view.activity') }}" aria-label="Check your Progress Statistics" 
-       class="glass-card p-6 rounded-3xl hover:border-orange-500/50 transition-all group">
-        <div class="w-10 h-10 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
-            <i class="fa-solid fa-arrow-trend-up"></i>
-        </div>
-        <h3 class="text-xl font-bold mb-1">My Stats</h3>
-        <p class="text-sm text-gray-500">Track your daily learning and system usage.</p>
-    </a>
-</div>
+        <a href="{{url_for('view.activity')}}" class="glass-card p-8 rounded-3xl hover:border-[var(--primary)] hover:-translate-y-2 transition-all duration-300 group">
+            <div class="w-14 h-14 bg-[var(--primary-soft)] text-[var(--primary)] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-chart-pie text-2xl"></i>
+            </div>
+            <h3 class="font-extrabold text-lg mb-2">My Stats</h3>
+            <p class="text-sm text-[var(--muted)]">Track your reading time and learning milestones.</p>
+        </a>
+
+    </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        <div class="lg:col-span-1 glass-card p-8 rounded-[2rem] space-y-6">
-            <h3 class="text-xl font-bold">Daily Goal <i class="fa-solid fa-marker"></i></h3>
-            <div class="relative pt-1">
-                <div class="flex mb-2 items-center justify-between">
-                    <div><span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full bg-blue-500/20 text-blue-500">Progress</span></div>
-                    <div class="text-right"><span class="text-xs font-semibold inline-block text-blue-500">75%</span></div>
-                </div>
-                <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-700">
-                    <div style="width:75%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"></div>
-                </div>
+
+        <div class="glass-card p-8 rounded-3xl space-y-6">
+            <div class="flex justify-between items-center">
+                <h3 class="font-black uppercase tracking-widest text-xs text-[var(--muted)]">Daily Goal</h3>
+                <span class="text-[var(--primary)] font-bold">75%</span>
             </div>
-            <p class="text-sm text-gray-400">You have spent <span class="text-white font-bold">45 minutes</span> learning today. Keep going!</p>
+
+            <div class="w-full bg-[var(--border)] rounded-full h-4 overflow-hidden">
+                <div class="bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] h-full rounded-full transition-all duration-1000" style="width: 75%"></div>
+            </div>
+
+            <p class="text-sm text-[var(--muted)]">
+                You’ve studied <span class="font-bold text-[var(--text)]">45 minutes</span> today. Just 15 more to reach your goal!
+            </p>
         </div>
 
-        <div class="lg:col-span-2 glass-card p-8 rounded-[2rem]">
-            <h3 class="text-xl font-bold mb-6">Accessibility Tips</h3>
-            <div class="space-y-4">
-                <div class="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/5" aria-label="Tip: Use CC button for hover reading">
-                    <div class="text-2xl"><i class="fa-regular fa-lightbulb"></i></div>
+        <div class="lg:col-span-2 glass-card p-8 rounded-3xl space-y-6">
+            <h3 class="font-black uppercase tracking-widest text-xs text-[var(--muted)]">Pro Accessibility Tips</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex gap-4 p-5 rounded-2xl bg-[var(--primary-soft)] border border-[var(--primary)]/10 group cursor-help">
+                    <div class="text-2xl text-[var(--primary)]">
+                        <i class="fa-regular fa-lightbulb"></i>
+                    </div>
                     <div>
-                        <h4 class="font-bold text-blue-400 text-sm">Pro Tip: Smart Reading</h4>
-                        <p class="text-xs text-gray-500 mt-1">Press the CC button in the top right to enable "Hover-to-Listen" mode for this entire dashboard.</p>
+                        <p class="font-bold text-[var(--primary)]">Smart Reading</p>
+                        <p class="text-xs text-[var(--muted)] leading-snug">Enable 'Hover Read' in the top bar to hear text as you point.</p>
                     </div>
                 </div>
-                <div class="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/5" aria-label="Tip: Adjust text size for comfort">
-                    <div class="text-2xl"><i class="fa-solid fa-magnifying-glass"></i></div>
+
+                <div class="flex gap-4 p-5 rounded-2xl bg-[var(--accent-soft)] border border-[var(--accent)]/10 group cursor-help">
+                    <div class="text-2xl text-[var(--accent)]">
+                        <i class="fa-solid fa-eye"></i>
+                    </div>
                     <div>
-                        <h4 class="font-bold text-sky-400 text-sm">Visual Comfort</h4>
-                        <p class="text-xs text-gray-500 mt-1">Use the A plus and A minus buttons to find a text size that feels natural for your eyes.</p>
+                        <p class="font-bold text-[var(--accent)]">Comfort View</p>
+                        <p class="text-xs text-[var(--muted)] leading-snug">Switch to 'Pink & Mint' mode if you have light sensitivity.</p>
                     </div>
                 </div>
             </div>
