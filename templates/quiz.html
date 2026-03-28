@@ -1,114 +1,138 @@
 {% extends "base.html" %}
-{% block title %}AI Quiz | SunoPadho{% endblock %}
-{% block header %}AI Quiz Generator{% endblock %}
+{% block title %}Quiz - SunoPadho AI{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto space-y-6">
+<div class="max-w-5xl mx-auto space-y-8">
 
-    <div class="glass-card p-6 rounded-3xl">
-        <h3 class="text-lg font-bold mb-4">Programming Languages</h3>
-        <select id="prog" multiple class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white" style="min-height:120px;">
-            <option>C++</option>
-            <option>C</option>
-            <option>Java</option>
-            <option>Python</option>
-            <option>Dart</option>
-            <option>HTML</option>
-            <option>CSS</option>
-            <option>JavaScript</option>
-            <option>SQL</option>
-        </select>
-    </div>
-
-    <div class="glass-card p-6 rounded-3xl">
-        <h3 class="text-lg font-bold mb-4">CS Fundamentals</h3>
-        <select id="cs" multiple class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white" style="min-height:100px;">
-            <option>Computer Networks</option>
-            <option>DBMS</option>
-            <option>Operating Systems</option>
-            <option>CCNA</option>
-            <option>Artificial Intelligence</option>
-        </select>
-    </div>
-
-    <div class="glass-card p-6 rounded-3xl">
-        <h3 class="text-lg font-bold mb-4">Other Categories</h3>
-        <select id="other" multiple class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white" style="min-height:100px;">
-            <option>General Knowledge</option>
-            <option>Mathematics</option>
-            <option>Logical Reasoning</option>
-            <option>Data Structures</option>
-            <option>Algorithms</option>
-        </select>
-    </div>
-
-    <div class="glass-card p-6 rounded-3xl">
-        <h3 class="text-lg font-bold mb-4">Quiz Settings</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <select id="difficulty" class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white">
-                <option class="bg-gray-900">Easy</option>
-                <option class="bg-gray-900">Medium</option>
-                <option class="bg-gray-900">Hard</option>
+    <div class="p-8 glass-card text-center space-y-6">
+        <h2 class="text-2xl font-bold">Select Category & Difficulty</h2>
+        <div class="space-y-4">
+            <select id="categorySelect" class="w-full p-3 border rounded-lg text-[var(--text)] bg-[var(--surface)] border-[var(--border)]">
+                <option value="">--Choose Category--</option>
             </select>
-            <select id="num" class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white">
-                <option value="5" class="bg-gray-900">5 Questions</option>
-                <option value="10" class="bg-gray-900">10 Questions</option>
-                <option value="15" class="bg-gray-900">15 Questions</option>
+
+            <select id="difficultySelect" class="w-full p-3 border rounded-lg text-[var(--text)] bg-[var(--surface)] border-[var(--border)]">
+                <option value="">--Choose Level--</option>
+                <option value="easy">1 - Beginner</option>
+                <option value="easy">2 - Easy</option>
+                <option value="medium">3 - Medium</option>
+                <option value="hard">4 - Hard</option>
+                <option value="hard">5 - Expert</option>
             </select>
+
+            <button id="startBtn" class="px-8 py-3 bg-[var(--primary)] text-white rounded-xl font-bold hover:opacity-90 transition">Start Quiz</button>
         </div>
     </div>
 
-    <button id="quizBtn" onclick="generateQuiz()" class="active-nav w-full py-4 rounded-2xl font-bold text-xl transition transform active:scale-95">
-        ✨ Generate Quiz
-    </button>
+    <div class="quiz hidden glass-card p-8 space-y-6">
+        <div class="question text-lg font-semibold"></div>
+        <div class="options flex flex-col gap-3"></div>
+        <button id="nextBtn" class="hidden px-6 py-2 bg-[var(--primary)] text-white rounded-lg font-bold">Next Question</button>
+    </div>
 
-    <div class="glass-card p-8 rounded-3xl">
-        <h3 class="text-lg font-bold mb-4">📥 Quiz Output</h3>
-        <div id="output" class="whitespace-pre-wrap bg-white/5 p-6 rounded-2xl text-sm leading-relaxed min-h-[100px]"></div>
+    <div class="result hidden glass-card p-8 space-y-6 text-center">
+        <p class="score text-xl font-bold"></p>
+        <button id="restartBtn" class="px-6 py-3 bg-[var(--primary)] text-white rounded-xl font-bold hover:opacity-90 transition">Restart Quiz</button>
     </div>
 
 </div>
 
 <script>
-function getSelectedValues(id) {
-    let select = document.getElementById(id);
-    return Array.from(select.selectedOptions).map(option => option.value);
-}
+    const categorySelect = document.getElementById('categorySelect');
+    const difficultySelect = document.getElementById('difficultySelect');
+    const startBtn = document.getElementById('startBtn');
+    const quizDiv = document.querySelector('.quiz');
+    const questionDiv = document.querySelector('.question');
+    const optionsDiv = document.querySelector('.options');
+    const nextBtn = document.getElementById('nextBtn');
+    const resultDiv = document.querySelector('.result');
+    const scoreText = document.querySelector('.score');
+    const restartBtn = document.getElementById('restartBtn');
 
-async function generateQuiz() {
-    let categories = [
-        ...getSelectedValues("prog"),
-        ...getSelectedValues("cs"),
-        ...getSelectedValues("other")
-    ];
+    let questions = [];
+    let currentQuestion = 0;
+    let score = 0;
 
-    if (categories.length === 0) {
-        if (typeof speak === 'function') speak('Please select at least one category.');
-        return;
-    }
-
-    let difficulty = document.getElementById("difficulty").value;
-    let num = document.getElementById("num").value;
-
-    const btn = document.getElementById('quizBtn');
-    btn.innerText = '🧠 Generating...';
-    document.getElementById("output").innerText = "AI is generating your quiz...";
-
-    try {
-        const res = await fetch('/generate_quiz', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ categories, difficulty, num })
+    // Fetch categories
+    fetch('https://opentdb.com/api_category.php')
+        .then(res => res.json())
+        .then(data => {
+            data.trivia_categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.innerText = cat.name;
+                categorySelect.appendChild(option);
+            });
         });
-        const data = await res.json();
-        document.getElementById("output").innerText = data.quiz;
-        btn.innerText = '✨ Generate Quiz';
 
-        if (typeof speak === 'function') speak('Quiz generated successfully!');
-    } catch(e) {
-        document.getElementById("output").innerText = "Error generating quiz. Please try again.";
-        btn.innerText = '✨ Generate Quiz';
+    startBtn.addEventListener('click', () => {
+        const cat = categorySelect.value;
+        const diff = difficultySelect.value;
+        if(!cat || !diff){ alert('Please select category and difficulty level'); return; }
+
+        fetch(`https://opentdb.com/api.php?amount=10&category=${cat}&difficulty=${diff}&type=multiple`)
+            .then(res => res.json())
+            .then(data => {
+                questions = data.results;
+                currentQuestion = 0;
+                score = 0;
+                document.querySelector('.category').classList.add('hidden');
+                quizDiv.classList.remove('hidden');
+                showQuestion();
+            });
+    });
+
+    function showQuestion(){
+        const q = questions[currentQuestion];
+        questionDiv.innerHTML = `${currentQuestion+1}. ${decodeHTML(q.question)}`;
+        let answers = [...q.incorrect_answers];
+        answers.push(q.correct_answer);
+        answers = shuffle(answers);
+        optionsDiv.innerHTML = '';
+        answers.forEach(ans => {
+            const btn = document.createElement('button');
+            btn.innerHTML = decodeHTML(ans);
+            btn.className = 'p-3 bg-[var(--primary-soft)] rounded-lg text-[var(--text)] hover:bg-[var(--primary)] hover:text-white transition';
+            btn.addEventListener('click', () => checkAnswer(ans, q.correct_answer));
+            optionsDiv.appendChild(btn);
+        });
     }
-}
+
+    function checkAnswer(selected, correct){
+        if(selected === correct) score++;
+        Array.from(optionsDiv.children).forEach(btn => btn.disabled = true);
+        nextBtn.classList.remove('hidden');
+    }
+
+    nextBtn.addEventListener('click', () => {
+        currentQuestion++;
+        nextBtn.classList.add('hidden');
+        if(currentQuestion < questions.length){
+            showQuestion();
+        } else {
+            quizDiv.classList.add('hidden');
+            resultDiv.classList.remove('hidden');
+            scoreText.innerText = `You scored ${score} out of ${questions.length}`;
+        }
+    });
+
+    restartBtn.addEventListener('click', () => {
+        resultDiv.classList.add('hidden');
+        document.querySelector('.category').classList.remove('hidden');
+    });
+
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--){
+            const j = Math.floor(Math.random() * (i+1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function decodeHTML(html){
+        var txt = document.createElement("textarea");
+        txt.innerHTML = html;
+        return txt.value;
+    }
 </script>
 {% endblock %}
