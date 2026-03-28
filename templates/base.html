@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}SunoPadho{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-jQf6+YF0H5U5RCZrVv2K6G2pIogL7bI5l4mGZlq+V4U/6cPdhxLZQXU6Z4DqB2gV6tC9qLZShO+TbUjEyzx2ZA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -36,26 +38,27 @@
 
 <aside class="sidebar flex flex-col items-center py-8 space-y-10 h-screen sticky top-0 z-50">
     <div class="group relative" aria-label="Soon-oh Pud-ho Platform Logo">
-        <div class="text-3xl font-extrabold bg-gradient-to-br from-blue-400 to-purple-500 bg-clip-text text-transparent transform group-hover:scale-110 transition">SP</div>
+        <div class="text-3xl font-extrabold bg-gradient-to-br from-blue-400 to-purple-500 bg-clip-text text-transparent transform group-hover:scale-110 transition"><i class="fa-solid fa-book-open-reader"></i></div>
     </div>
     
     <nav class="flex flex-col space-y-6 w-full items-center">
-        {% for ep, icon, label in [
-            ('view.dashboard','🏠','Home Dashboard'),
-            ('view.chatbot','🤖','AI Tutor Assistant'),
-            ('view.simplifier','📊','Magic Simplier'),
-            ('view.document','📄','Document Summarize Reader'),
-        ] %}
-        <a href="{{ url_for(ep) }}" aria-label="{{ label }}"
-           class="nav-link p-4 rounded-2xl text-xl {% if request.endpoint == ep %}active-nav{% else %}text-gray-500{% endif %}">
-            {{ icon }}
-        </a>
-        {% endfor %}
-    </nav>
+    {% for ep, icon, label in [
+        ('view.dashboard','<i class="fa-solid fa-house"></i>','Home Dashboard'),
+        ('view.chatbot','<i class="fa-solid fa-robot"></i>','AI Tutor Assistant'),
+        ('view.simplifier','<i class="fa-solid fa-wand-magic-sparkles"></i>','Magic Simplier'),
+        ('view.document','<i class="fa-solid fa-file-circle-plus"></i>','Document Summarize Reader'),
+    ] %}
+    <a href="{{ url_for(ep) }}" aria-label="{{ label }}"
+       class="nav-link p-4 rounded-2xl text-xl {% if request.endpoint == ep %}active-nav{% else %}text-gray-500{% endif %}">
+        {{ icon|safe }}
+    </a>
+    {% endfor %}
+</nav>
+
 
     <div class="mt-auto flex flex-col space-y-5 mb-6">
-        <button onclick="cycleTheme()" class="text-gray-500 hover:text-white transition" aria-label="Switch Theme Mode">🌓</button>
-        <a href="{{ url_for('auth.logout') }}" class="text-gray-500 hover:text-red-500 transition" aria-label="Secure Logout">🚪</a>
+        <button onclick="cycleTheme()" class="text-gray-500 hover:text-white transition" aria-label="Switch Theme Mode"><i class="fa-solid fa-brush"></i></button>
+        <a href="{{ url_for('auth.logout') }}" class="text-gray-500 hover:text-red-500 transition" aria-label="Secure Logout"><i class="fa-solid fa-right-from-bracket"></i></a>
     </div>
 </aside>
 
@@ -78,8 +81,9 @@
             </div>
             
             <button id="spkBtn" onclick="readMainContent()" 
-                    class="header-btn w-12 text-xl text-green-400" 
-                    aria-label="Listen to page summary">🔊</button>
+        class="header-btn text-base text-green-400" 
+        style="width:2.5rem; height:2.7rem;" 
+        aria-label="Listen to page summary">🔊</button>
         </div>
     </header>
 
@@ -94,103 +98,115 @@
         <p>Crafted by <span class="text-blue-500 font-bold">Null Pointers</span></p>
     </footer>
 </div>
-
 <script>
-    const state = {
-        th: localStorage.getItem('th') || 'dark',
-        fs: parseInt(localStorage.getItem('fs')) || 17,
-        isHoverEnabled: false
-    };
+const state = {
+    th: localStorage.getItem('th') || 'dark',
+    fs: parseInt(localStorage.getItem('fs')) || 16, // base font size
+    isHoverEnabled: false
+};
 
-    const synth = window.speechSynthesis;
+const synth = window.speechSynthesis;
 
-    function applyState() {
-        document.body.className = `${state.th} flex`;
-        document.body.style.fontSize = state.fs + 'px';
-        localStorage.setItem('th', state.th);
-        localStorage.setItem('fs', state.fs);
-    }
+function applyState() {
+    // 1. Set root font size (everything uses rem)
+    document.documentElement.style.fontSize = state.fs + 'px';
 
-    function cycleTheme() {
-        const themes = ['dark', 'light', 'cb'];
-        state.th = themes[(themes.indexOf(state.th) + 1) % themes.length];
-        applyState();
-    }
-
-    function fnt(v) { 
-        state.fs = Math.max(12, Math.min(32, state.fs + v)); 
-        applyState(); 
-    }
-
-    // --- 🔊 SMART ACCESSIBILITY ENGINE ---
-    
-    function toggleHoverSystem() {
-        state.isHoverEnabled = !state.isHoverEnabled;
-        const btn = document.getElementById('hoverToggle');
-        btn.classList.toggle('text-blue-400', state.isHoverEnabled);
-        btn.classList.toggle('border-blue-500/50', state.isHoverEnabled);
-        
-        speak(state.isHoverEnabled ? "Smart reader active" : "Smart reader off");
-    }
-
-    document.addEventListener('mouseover', (e) => {
-        if (!state.isHoverEnabled) return;
-
-        const target = e.target.closest('[aria-label], [alt], p, h1, h2, h3, h4, a, button, li, span');
-        if (!target) return;
-
-        // 1. Kill previous speech immediately
-        synth.cancel();
-
-        // 2. Identify text content
-        let text = target.getAttribute('aria-label') || target.getAttribute('alt') || target.innerText.trim();
-        
-        if (text) {
-            target.classList.add('reader-focus');
-
-            // 3. Intelligent Prefixing
-            let prefix = "";
-            const tag = target.tagName;
-            if (tag === 'A') prefix = "Link: ";
-            else if (tag === 'BUTTON') prefix = "Button: ";
-            else if (tag === 'IMG') prefix = "Image: ";
-
-            const utterance = new SpeechSynthesisUtterance(prefix + text);
-            utterance.rate = 1.15; // Natural but fast for browsing
-            utterance.pitch = 1;
-            
-            synth.speak(utterance);
-
-            // 4. Cleanup
-            target.addEventListener('mouseleave', () => {
-                target.classList.remove('reader-focus');
-                synth.cancel();
-            }, { once: true });
-        }
+    // 2. Update sidebar icons (nav)
+    document.querySelectorAll('.sidebar .nav-link').forEach(el => {
+        el.style.fontSize = state.fs * 1.25 + 'px'; // scale factor
     });
 
-    function speak(text) {
-        synth.cancel();
-        const u = new SpeechSynthesisUtterance(text);
-        u.rate = 1.2;
-        synth.speak(u);
-    }
+    // 3. Update top-right buttons (CC, A+/A-, mic)
+    document.querySelectorAll('#spkBtn, #hoverToggle, .header-btn').forEach(el => {
+        el.style.fontSize = state.fs * 1.1 + 'px';
+        el.style.padding = (state.fs * 0.35) + 'px ' + (state.fs * 0.7) + 'px';
+    });
 
-    function readMainContent() {
-        if (synth.speaking) {
-            synth.cancel();
-            document.getElementById('spkBtn').innerText = "🔊";
-        } else {
-            const mainText = document.querySelector('main').innerText;
-            const ut = new SpeechSynthesisUtterance(mainText);
-            ut.onstart = () => document.getElementById('spkBtn').innerText = "🛑";
-            ut.onend = () => document.getElementById('spkBtn').innerText = "🔊";
-            synth.speak(ut);
-        }
-    }
+    // 4. Update dashboard main buttons ("Start Learning", "View Activity")
+    document.querySelectorAll('section button').forEach(el => {
+        el.style.fontSize = state.fs * 1.1 + 'px';
+        el.style.padding = (state.fs * 0.5) + 'px ' + (state.fs * 1.5) + 'px';
+    });
 
-    // Launch
+    // 5. Update big emojis in dashboard cards
+    document.querySelectorAll('.text-8xl, .w-12, .h-12').forEach(el => {
+        el.style.fontSize = state.fs * 4 + 'px';
+        el.style.width = state.fs * 3 + 'px';
+        el.style.height = state.fs * 3 + 'px';
+    });
+
+    // 6. Save state
+    localStorage.setItem('fs', state.fs);
+    localStorage.setItem('th', state.th);
+}
+
+function cycleTheme() {
+    const themes = ['dark', 'light', 'cb'];
+    state.th = themes[(themes.indexOf(state.th) + 1) % themes.length];
     applyState();
+}
+
+function fnt(v) {
+    state.fs = Math.max(12, Math.min(32, state.fs + v));
+    applyState();
+}
+
+// --- 🔊 SMART ACCESSIBILITY ENGINE ---
+function toggleHoverSystem() {
+    state.isHoverEnabled = !state.isHoverEnabled;
+    const btn = document.getElementById('hoverToggle');
+    btn.classList.toggle('text-blue-400', state.isHoverEnabled);
+    btn.classList.toggle('border-blue-500/50', state.isHoverEnabled);
+    
+    speak(state.isHoverEnabled ? "Smart reader active" : "Smart reader off");
+}
+
+document.addEventListener('mouseover', (e) => {
+    if (!state.isHoverEnabled) return;
+    const target = e.target.closest('[aria-label], [alt], p, h1, h2, h3, h4, a, button, li, span');
+    if (!target) return;
+    synth.cancel();
+    let text = target.getAttribute('aria-label') || target.getAttribute('alt') || target.innerText.trim();
+    if (text) {
+        target.classList.add('reader-focus');
+        let prefix = "";
+        const tag = target.tagName;
+        if (tag === 'A') prefix = "Link: ";
+        else if (tag === 'BUTTON') prefix = "Button: ";
+        else if (tag === 'IMG') prefix = "Image: ";
+        const utterance = new SpeechSynthesisUtterance(prefix + text);
+        utterance.rate = 1.15;
+        utterance.pitch = 1;
+        synth.speak(utterance);
+        target.addEventListener('mouseleave', () => {
+            target.classList.remove('reader-focus');
+            synth.cancel();
+        }, { once: true });
+    }
+});
+
+function speak(text) {
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 1.2;
+    synth.speak(u);
+}
+
+function readMainContent() {
+    if (synth.speaking) {
+        synth.cancel();
+        document.getElementById('spkBtn').innerText = "🔊";
+    } else {
+        const mainText = document.querySelector('main').innerText;
+        const ut = new SpeechSynthesisUtterance(mainText);
+        ut.onstart = () => document.getElementById('spkBtn').innerText = "🛑";
+        ut.onend = () => document.getElementById('spkBtn').innerText = "🔊";
+        synth.speak(ut);
+    }
+}
+
+// Launch initial state
+applyState();
 </script>
 </body>
 </html>
