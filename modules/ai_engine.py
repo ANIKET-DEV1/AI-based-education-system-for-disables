@@ -3,13 +3,18 @@ from groq import Groq
 
 client = Groq(api_key="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")
 
-def get_magic_data(complex_text):
+def get_magic_data(complex_text, language="Simple English"):
     """
     Uses Groq's FREE tier to simplify text instantly.
     """
+    lang_instruction = ""
+    if language == "Hindi":
+        lang_instruction = "Write the simplified text in Hindi (Devanagari script). "
+
     prompt = (
         f"Simplify this text for a student with learning disabilities. "
         f"Use short sentences and simple words. "
+        f"{lang_instruction}"
         f"Format your response EXACTLY as follows:\n"
         f"SIMPLE: [simplified text]\n"
         f"VISUALS: [3 keywords separated by commas]\n\n"

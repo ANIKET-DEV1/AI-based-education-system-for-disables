@@ -6,7 +6,11 @@
     <div class="glass-card p-8 rounded-[2.5rem] border-t-4 border-blue-500 shadow-2xl">
         <textarea id="complexInput" class="w-full h-40 bg-white/5 border border-white/10 rounded-3xl p-6 text-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
                   placeholder="Paste complex text here..."></textarea>
-        <button onclick="startMagic()" id="magicBtn" class="active-nav w-full py-4 rounded-2xl font-black text-xl mt-6 transition transform active:scale-95">
+        <select id="langSelect" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-3 text-white mt-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="Simple English" class="bg-gray-900">Simple English</option>
+            <option value="Hindi" class="bg-gray-900">Hindi (हिन्दी)</option>
+        </select>
+        <button onclick="startMagic()" id="magicBtn" class="active-nav w-full py-4 rounded-2xl font-black text-xl mt-4 transition transform active:scale-95">
             ✨ RUN MAGIC SIMPLIFIER
         </button>
     </div>
@@ -41,6 +45,7 @@ async function startMagic() {
     const text = document.getElementById('complexInput').value;
     if(!text) return speak("Please enter some text.");
 
+    const language = document.getElementById('langSelect').value;
     const btn = document.getElementById('magicBtn');
     btn.innerText = "🧙‍♂️ SIMPLIFYING...";
     
@@ -51,7 +56,7 @@ async function startMagic() {
         const res = await fetch('/run-magic', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ text: text })
+            body: JSON.stringify({ text: text, language: language })
         });
         
         const data = await res.json();

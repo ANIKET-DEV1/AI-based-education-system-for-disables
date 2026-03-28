@@ -1,25 +1,25 @@
 {% extends "base.html" %}
-{% block title %}AI Tutor | SunoPadho{% endblock %}
-{% block header %}AI Tutor{% endblock %}
+{% block title %}Help Guide | SunoPadho{% endblock %}
+{% block header %}Help Guide{% endblock %}
 
 {% block content %}
 <div class="max-w-4xl mx-auto space-y-6">
 
     <div class="glass-card rounded-[2rem] p-8 border-l-4 border-blue-500">
-        <h3 class="text-xl font-bold mb-2">Ask Me Anything</h3>
-        <p class="text-sm text-gray-400 mb-6">I'll explain things in simple, easy-to-understand language.</p>
+        <h3 class="text-xl font-bold mb-2">Need Help?</h3>
+        <p class="text-sm text-gray-400 mb-6">Ask me anything about how to use SunoPadho — features, accessibility, navigation & more.</p>
 
         <div id="chatMessages" class="space-y-4 max-h-[400px] overflow-y-auto mb-6 p-4 rounded-2xl bg-white/5">
             <div class="flex gap-3">
                 <div class="text-2xl">🤖</div>
                 <div class="glass-card p-4 rounded-2xl max-w-[80%]">
-                    <p class="text-sm">Hello! I'm your AI tutor. Ask me any question and I'll explain it in a simple way!</p>
+                    <p class="text-sm">Hi there! 👋 I'm your SunoPadho guide. Ask me how to use any feature — like the Magic Simplifier, Quiz Generator, PDF Summarizer, or accessibility tools!</p>
                 </div>
             </div>
         </div>
 
         <div class="flex gap-3">
-            <input id="chatInput" type="text" placeholder="Type your question here..."
+            <input id="chatInput" type="text" placeholder="e.g. How do I simplify text? What does the CC button do?"
                    class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                    onkeypress="if(event.key==='Enter')sendChat()">
             <button onclick="sendChat()" class="active-nav px-8 rounded-2xl font-bold transition transform active:scale-95">
