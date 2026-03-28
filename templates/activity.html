@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Activity | SunoPadho{% endblock %}
+{% block header %}My Activity{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="glass-card p-6 rounded-3xl text-center">
+            <div class="text-4xl font-extrabold text-blue-500">{{ stats.lessons }}</div>
+            <p class="text-sm text-gray-400 mt-2">Lessons Created</p>
+        </div>
+        <div class="glass-card p-6 rounded-3xl text-center">
+            <div class="text-4xl font-extrabold text-green-500">{{ stats.completed }}</div>
+            <p class="text-sm text-gray-400 mt-2">Completed</p>
+        </div>
+        <div class="glass-card p-6 rounded-3xl text-center">
+            <div class="text-4xl font-extrabold text-purple-500">{{ stats.avg_score }}%</div>
+            <p class="text-sm text-gray-400 mt-2">Avg Score</p>
+        </div>
+    </div>
+
+    <div class="glass-card p-8 rounded-[2rem]">
+        <h3 class="text-xl font-bold mb-6">Recent Progress</h3>
+        {% if progress %}
+        <div class="space-y-4">
+            {% for score, level, title in progress %}
+            <div class="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                <div>
+                    <h4 class="font-bold">{{ title }}</h4>
+                    <p class="text-xs text-gray-500">Level: {{ level }}</p>
+                </div>
+                <div class="text-blue-400 font-bold">{{ score }}%</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-center py-8">No activity yet. Start learning to see your progress here!</p>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

@@ -1,125 +1,71 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>AI Quiz Generator</title>
+{% extends "base.html" %}
+{% block title %}AI Quiz | SunoPadho{% endblock %}
+{% block header %}AI Quiz Generator{% endblock %}
 
-<style>
-body {
-    background: #0f172a;
-    color: white;
-    font-family: Arial;
-    text-align: center;
-}
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6">
 
-.container {
-    width: 600px;
-    margin: auto;
-    margin-top: 40px;
-}
+    <div class="glass-card p-6 rounded-3xl">
+        <h3 class="text-lg font-bold mb-4">Programming Languages</h3>
+        <select id="prog" multiple class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white" style="min-height:120px;">
+            <option>C++</option>
+            <option>C</option>
+            <option>Java</option>
+            <option>Python</option>
+            <option>Dart</option>
+            <option>HTML</option>
+            <option>CSS</option>
+            <option>JavaScript</option>
+            <option>SQL</option>
+        </select>
+    </div>
 
-.card {
-    background: #1e293b;
-    padding: 20px;
-    border-radius: 15px;
-    margin-bottom: 20px;
-}
+    <div class="glass-card p-6 rounded-3xl">
+        <h3 class="text-lg font-bold mb-4">CS Fundamentals</h3>
+        <select id="cs" multiple class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white" style="min-height:100px;">
+            <option>Computer Networks</option>
+            <option>DBMS</option>
+            <option>Operating Systems</option>
+            <option>CCNA</option>
+            <option>Artificial Intelligence</option>
+        </select>
+    </div>
 
-select, button {
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-    border-radius: 10px;
-}
+    <div class="glass-card p-6 rounded-3xl">
+        <h3 class="text-lg font-bold mb-4">Other Categories</h3>
+        <select id="other" multiple class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white" style="min-height:100px;">
+            <option>General Knowledge</option>
+            <option>Mathematics</option>
+            <option>Logical Reasoning</option>
+            <option>Data Structures</option>
+            <option>Algorithms</option>
+        </select>
+    </div>
 
-button {
-    background: linear-gradient(to right, #3b82f6, #8b5cf6);
-    color: white;
-    border: none;
-    cursor: pointer;
-}
+    <div class="glass-card p-6 rounded-3xl">
+        <h3 class="text-lg font-bold mb-4">Quiz Settings</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <select id="difficulty" class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white">
+                <option>Easy</option>
+                <option>Medium</option>
+                <option>Hard</option>
+            </select>
+            <select id="num" class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white">
+                <option value="5">5 Questions</option>
+                <option value="10">10 Questions</option>
+                <option value="15">15 Questions</option>
+            </select>
+        </div>
+    </div>
 
-#output {
-    white-space: pre-wrap;
-    text-align: left;
-    background: #020617;
-    padding: 15px;
-    border-radius: 10px;
-}
-</style>
+    <button id="quizBtn" onclick="generateQuiz()" class="active-nav w-full py-4 rounded-2xl font-bold text-xl transition transform active:scale-95">
+        ✨ Generate Quiz
+    </button>
 
-</head>
-
-<body>
-
-<div class="container">
-
-<h1>🧠 AI Quiz Generator</h1>
-
-<!-- Programming Languages -->
-<div class="card">
-    <h3>Programming Languages</h3>
-    <select id="prog" multiple>
-        <option>C++</option>
-        <option>C</option>
-        <option>Java</option>
-        <option>Python</option>
-        <option>Dart</option>
-        <option>HTML</option>
-        <option>CSS</option>
-        <option>JavaScript</option>
-        <option>SQL</option>
-    </select>
-</div>
-
-<!-- CS Fundamentals -->
-<div class="card">
-    <h3>CS Fundamentals</h3>
-    <select id="cs" multiple>
-        <option>Computer Networks</option>
-        <option>DBMS</option>
-        <option>Operating Systems</option>
-        <option>CCNA</option>
-        <option>Artificial Intelligence</option>
-    </select>
-</div>
-
-<!-- Extra Categories -->
-<div class="card">
-    <h3>Other Categories</h3>
-    <select id="other" multiple>
-        <option>General Knowledge</option>
-        <option>Mathematics</option>
-        <option>Logical Reasoning</option>
-        <option>Data Structures</option>
-        <option>Algorithms</option>
-    </select>
-</div>
-
-<!-- Settings -->
-<div class="card">
-    <h3>Quiz Settings</h3>
-
-    <select id="difficulty">
-        <option>Easy</option>
-        <option>Medium</option>
-        <option>Hard</option>
-    </select>
-
-    <select id="num">
-        <option value="5">5 Questions</option>
-        <option value="10">10 Questions</option>
-        <option value="15">15 Questions</option>
-    </select>
-</div>
-
-<!-- Button -->
-<button onclick="generateQuiz()">✨ Generate Quiz</button>
-
-<!-- Output -->
-<div class="card">
-    <h3>📥 Quiz Output</h3>
-    <div id="output"></div>
-</div>
+    <div class="glass-card p-8 rounded-3xl">
+        <h3 class="text-lg font-bold mb-4">📥 Quiz Output</h3>
+        <div id="output" class="whitespace-pre-wrap bg-white/5 p-6 rounded-2xl text-sm leading-relaxed min-h-[100px]"></div>
+    </div>
 
 </div>
 
@@ -129,81 +75,40 @@ function getSelectedValues(id) {
     return Array.from(select.selectedOptions).map(option => option.value);
 }
 
-function generateQuiz() {
+async function generateQuiz() {
     let categories = [
         ...getSelectedValues("prog"),
         ...getSelectedValues("cs"),
         ...getSelectedValues("other")
     ];
 
+    if (categories.length === 0) {
+        if (typeof speak === 'function') speak('Please select at least one category.');
+        return;
+    }
+
     let difficulty = document.getElementById("difficulty").value;
     let num = document.getElementById("num").value;
 
-    fetch('/generate_quiz', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ categories, difficulty, num })
-    })
-    .then(res => res.json())
-    .then(data => {
+    const btn = document.getElementById('quizBtn');
+    btn.innerText = '🧠 Generating...';
+    document.getElementById("output").innerText = "AI is generating your quiz...";
+
+    try {
+        const res = await fetch('/generate_quiz', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ categories, difficulty, num })
+        });
+        const data = await res.json();
         document.getElementById("output").innerText = data.quiz;
-    });
+        btn.innerText = '✨ Generate Quiz';
+
+        if (typeof speak === 'function') speak('Quiz generated successfully!');
+    } catch(e) {
+        document.getElementById("output").innerText = "Error generating quiz. Please try again.";
+        btn.innerText = '✨ Generate Quiz';
+    }
 }
 </script>
-
-</body>
-</html>
-
-
-
-<!-- from flask import Flask, render_template, request, jsonify
-import requests
-
-app = Flask(__name__)
-
-API_KEY = "YOUR_OPENAI_API_KEY"
-
-@app.route('/')
-def home():
-    return render_template('quiz.html')
-
-@app.route('/generate_quiz', methods=['POST'])
-def generate_quiz():
-    data = request.json
-    categories = data['categories']
-    difficulty = data['difficulty']
-    num_questions = data['num']
-
-    topic = ", ".join(categories)
-
-    prompt = f"""
-    Generate {num_questions} MCQ questions on {topic}.
-    Difficulty: {difficulty}.
-    Provide:
-    - Question
-    - 4 options
-    - Correct answer
-    - Short explanation
-    """
-
-    url = "https://api.openai.com/v1/chat/completions"
-
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
-    }
-
-    body = {
-        "model": "gpt-4o-mini",
-        "messages": [{"role": "user", "content": prompt}]
-    }
-
-    response = requests.post(url, headers=headers, json=body)
-    result = response.json()
-
-    quiz_text = result['choices'][0]['message']['content']
-
-    return jsonify({"quiz": quiz_text})
-
-if __name__ == '__main__':
-    app.run(debug=True) -->
+{% endblock %}

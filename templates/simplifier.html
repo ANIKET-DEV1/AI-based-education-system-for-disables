@@ -78,5 +78,12 @@ async function startMagic() {
         btn.innerText = "✨ RUN MAGIC SIMPLIFIER";
     }
 }
+
+function readSimplifiedText() {
+    const text = document.getElementById('simpleText').innerText;
+    if (text && typeof speak === 'function') {
+        speak(text);
+    }
+}
 </script>
 {% endblock %}

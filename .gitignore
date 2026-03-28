@@ -3,6 +3,4 @@ __pycache__/
 *.pyc
 .env
 instance/
-rmote 
-lib
-Scripts
+static/videos/

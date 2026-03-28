@@ -1,14 +1,13 @@
 import os
 from flask import Blueprint, jsonify, render_template, request, redirect, session, url_for
 from models import Helper
-from modules.ai_engine import generate_magic_lesson, get_magic_data
-from modules.video_engine import create_magic_video
+from modules.ai_engine import generate_magic_lesson, get_magic_data, generate_quiz_content, summarize_text
 
 view = Blueprint('view', __name__)
 auth = Blueprint('auth', __name__)
 db = Helper()
 
-# --- 🚪 AUTHENTICATION ROUTES ---
+# --- AUTH ROUTES ---
 
 @view.route('/')
 def home():
@@ -56,39 +55,60 @@ def logout():
     session.clear()
     return redirect(url_for("auth.login"))
 
-# --- 🚀 MAIN VIEW ROUTES ---
+# --- MAIN VIEW ROUTES ---
 
 @view.route('/dashboard')
 def dashboard():
     if "user_id" not in session:
         return redirect(url_for("auth.login"))
-    # Optionally fetch recent lessons to show on dashboard
-    return render_template("dashboard.html")
+    stats = db.get_user_stats(session["user_id"])
+    return render_template("dashboard.html", stats=stats)
 
 @view.route('/chatbot')
 def chatbot():
     if "user_id" not in session:
         return redirect(url_for("auth.login"))
-    return render_template("chatbot.html") # Make sure this file exists
+    return render_template("chatbot.html")
 
 @view.route('/document')
 def document():
     if "user_id" not in session:
         return redirect(url_for("auth.login"))
-    return render_template("document.html") # Make sure this file exists
+    return render_template("document.html")
+
 @view.route('/activity')
 def activity():
     if "user_id" not in session:
         return redirect(url_for("auth.login"))
-    return render_template("activity.html") # Make sure this file exists
+    progress = db.get_user_progress(session["user_id"])
+    stats = db.get_user_stats(session["user_id"])
+    return render_template("activity.html", progress=progress, stats=stats)
 
 @view.route('/simplifier')
 def simplifier():
     if "user_id" not in session:
         return redirect(url_for("auth.login"))
-    return render_template("simplifier.html") # Renders the UI for magic simplifier
+    return render_template("simplifier.html")
 
-# --- 🪄 MAGIC ENGINE API ---
+@view.route('/quiz')
+def quiz():
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
+    return render_template("quiz.html")
+
+@view.route('/pdf-summarizer')
+def pdf_summarizer():
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
+    return render_template("PDFSummarizer.html")
+
+@view.route('/doc-convert')
+def doc_convert():
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
+    return render_template("documentConvert.html")
+
+# --- API ROUTES ---
 
 @view.route('/run-magic', methods=['POST'])
 def run_magic():
@@ -96,21 +116,16 @@ def run_magic():
         data = request.get_json()
         text = data.get('text')
         
-        # 1. AI Logic (Simplified Text + Visual Keywords)
-        # Assuming get_magic_data now only returns (simple_text, visual_tags)
         simple_text, visual_tags = get_magic_data(text)
         
-        # 2. Video Logic (Optional - set to empty if not ready)
-        video_url = "" 
-        # video_filename = create_magic_video(visual_tags)
-        # video_url = f"/static/videos/{video_filename}"
+        video_url = ""
 
-        # 3. Database Save
         db.save_lesson(
+            user_id=session.get("user_id"),
             title=text[:30],
             original=text,
             simplified=simple_text,
-            audio="CC_VOICE", # Marking that we use the built-in CC
+            audio="CC_VOICE",
             video=video_url
         )
 
@@ -122,5 +137,79 @@ def run_magic():
         })
 
     except Exception as e:
-        print(f"❌ BACKEND ERROR: {e}")
+        print(f"BACKEND ERROR: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@view.route('/generate_quiz', methods=['POST'])
+def generate_quiz():
+    try:
+        data = request.get_json()
+        categories = data.get('categories', [])
+        difficulty = data.get('difficulty', 'Easy')
+        num = data.get('num', '5')
+
+        quiz_text = generate_quiz_content(categories, difficulty, num)
+        return jsonify({"quiz": quiz_text})
+
+    except Exception as e:
+        print(f"QUIZ ERROR: {e}")
+        return jsonify({"quiz": "Error generating quiz. Please try again."}), 500
+
+
+@view.route('/summarize-pdf', methods=['POST'])
+def summarize_pdf():
+    try:
+        file = request.files.get('file')
+        summary_type = request.form.get('summaryType', 'Short')
+        output_format = request.form.get('format', 'Paragraph')
+        language = request.form.get('language', 'Normal English')
+
+        if not file:
+            return jsonify({"error": "No file uploaded"}), 400
+
+        # Extract text from PDF
+        import PyPDF2
+        reader = PyPDF2.PdfReader(file)
+        text = ""
+        for page in reader.pages:
+            page_text = page.extract_text()
+            if page_text:
+                text += page_text + "\n"
+
+        if not text.strip():
+            return jsonify({"error": "Could not extract text from PDF"}), 400
+
+        result = summarize_text(text, summary_type, output_format, language)
+        return jsonify({"success": True, **result})
+
+    except Exception as e:
+        print(f"PDF SUMMARIZE ERROR: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@view.route('/chatbot-ask', methods=['POST'])
+def chatbot_ask():
+    try:
+        data = request.get_json()
+        message = data.get('message', '')
+
+        from groq import Groq
+        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
+        completion = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": "You are a helpful, patient AI tutor for students with learning disabilities. Use simple words, short sentences, and be encouraging. Explain concepts in an easy-to-understand way."},
+                {"role": "user", "content": message}
+            ],
+            temperature=0.7,
+            max_tokens=500
+        )
+
+        reply = completion.choices[0].message.content
+        return jsonify({"success": True, "reply": reply})
+
+    except Exception as e:
+        print(f"CHATBOT ERROR: {e}")
         return jsonify({"error": str(e)}), 500

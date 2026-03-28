@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}AI Tutor | SunoPadho{% endblock %}
+{% block header %}AI Tutor{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+
+    <div class="glass-card rounded-[2rem] p-8 border-l-4 border-blue-500">
+        <h3 class="text-xl font-bold mb-2">Ask Me Anything</h3>
+        <p class="text-sm text-gray-400 mb-6">I'll explain things in simple, easy-to-understand language.</p>
+
+        <div id="chatMessages" class="space-y-4 max-h-[400px] overflow-y-auto mb-6 p-4 rounded-2xl bg-white/5">
+            <div class="flex gap-3">
+                <div class="text-2xl">🤖</div>
+                <div class="glass-card p-4 rounded-2xl max-w-[80%]">
+                    <p class="text-sm">Hello! I'm your AI tutor. Ask me any question and I'll explain it in a simple way!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex gap-3">
+            <input id="chatInput" type="text" placeholder="Type your question here..."
+                   class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   onkeypress="if(event.key==='Enter')sendChat()">
+            <button onclick="sendChat()" class="active-nav px-8 rounded-2xl font-bold transition transform active:scale-95">
+                Send
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+async function sendChat() {
+    const input = document.getElementById('chatInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    const container = document.getElementById('chatMessages');
+
+    // Add user message
+    container.innerHTML += `
+        <div class="flex gap-3 justify-end">
+            <div class="glass-card p-4 rounded-2xl max-w-[80%] border border-blue-500/30">
+                <p class="text-sm">${msg}</p>
+            </div>
+            <div class="text-2xl">👤</div>
+        </div>`;
+
+    input.value = '';
+    container.scrollTop = container.scrollHeight;
+
+    // Add loading indicator
+    const loadingId = 'loading-' + Date.now();
+    container.innerHTML += `
+        <div id="${loadingId}" class="flex gap-3">
+            <div class="text-2xl">🤖</div>
+            <div class="glass-card p-4 rounded-2xl">
+                <p class="text-sm text-gray-400">Thinking...</p>
+            </div>
+        </div>`;
+    container.scrollTop = container.scrollHeight;
+
+    try {
+        const res = await fetch('/chatbot-ask', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ message: msg })
+        });
+        const data = await res.json();
+
+        // Remove loading
+        document.getElementById(loadingId).remove();
+
+        const reply = data.success ? data.reply : 'Sorry, I encountered an error. Please try again.';
+        container.innerHTML += `
+            <div class="flex gap-3">
+                <div class="text-2xl">🤖</div>
+                <div class="glass-card p-4 rounded-2xl max-w-[80%]">
+                    <p class="text-sm">${reply}</p>
+                </div>
+            </div>`;
+        container.scrollTop = container.scrollHeight;
+
+        // Read aloud if CC mode is on
+        if (typeof speak === 'function') speak(reply);
+
+    } catch(e) {
+        document.getElementById(loadingId).remove();
+        container.innerHTML += `
+            <div class="flex gap-3">
+                <div class="text-2xl">🤖</div>
+                <div class="glass-card p-4 rounded-2xl border border-red-500/30">
+                    <p class="text-sm text-red-400">Connection error. Please check your internet and try again.</p>
+                </div>
+            </div>`;
+    }
+}
+</script>
+{% endblock %}

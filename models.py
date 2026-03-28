@@ -1,87 +1,96 @@
-import pymysql as sql
+import os
+import sqlite3
 from werkzeug.security import check_password_hash, generate_password_hash
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DB_PATH = os.path.join(os.path.dirname(__file__), "builditon.db")
 
 
 class Helper:
     def __init__(self):
         print("Connecting to database...")
-        self.db = sql.connect(
-            host="localhost",
-            user="root",
-            passwd="Awesome123.",
-            database="builditon"
-        )
+        self.db_path = DB_PATH
+        db = self._get_connection()
+        cur = db.cursor()
 
-        print("Connected!")
         queries = [
         """CREATE TABLE IF NOT EXISTS users(
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            username VARCHAR(50) NOT NULL UNIQUE,
-            email VARCHAR(100) NOT NULL UNIQUE,
-            password VARCHAR(255) NOT NULL,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL UNIQUE,
+            email TEXT NOT NULL UNIQUE,
+            password TEXT NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );""",
 
         """CREATE TABLE IF NOT EXISTS lessons(
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            title VARCHAR(200) NOT NULL,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            title TEXT NOT NULL,
             original_text TEXT,
             simplified_text TEXT,
-            audio_path VARCHAR(255),
-            video_path VARCHAR(255),
+            audio_path TEXT,
+            video_path TEXT,
             image_description TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
         );""",
 
-    
         """CREATE TABLE IF NOT EXISTS progress(
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            user_id INT NOT NULL,
-            lesson_id INT NOT NULL,
-
-            status ENUM('not_started', 'in_progress', 'completed') DEFAULT 'not_started',
-            score INT DEFAULT 0,
-            level ENUM('easy','medium','hard') DEFAULT 'easy',
-
-            last_accessed TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            lesson_id INTEGER NOT NULL,
+            status TEXT DEFAULT 'not_started',
+            score INTEGER DEFAULT 0,
+            level TEXT DEFAULT 'easy',
+            last_accessed TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
             FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE
         );"""
         ]
 
-        cur = self.db.cursor()
-
         for q in queries:
             cur.execute(q)
 
+        db.commit()
         cur.close()
-   
+        db.close()
+        print("Connected!")
+
+    def _get_connection(self):
+        """Get a new SQLite connection."""
+        return sqlite3.connect(self.db_path)
 
     def insert_user(self, username, email, password):
+        db = None
         try:
-            cur = self.db.cursor()
-            cur.execute("SELECT * FROM users WHERE username=%s OR email=%s", (username, email))
+            db = self._get_connection()
+            cur = db.cursor()
+            cur.execute("SELECT * FROM users WHERE username=? OR email=?", (username, email))
             if cur.fetchone():
                 return 2
             hashed = generate_password_hash(password)
             cur.execute(
-                "INSERT INTO users(username, email, password) VALUES (%s, %s, %s)",
+                "INSERT INTO users(username, email, password) VALUES (?, ?, ?)",
                 (username, email, hashed)
             )
-            self.db.commit()
+            db.commit()
             return True
 
         except Exception as e:
             print("Error:", e)
             return False
         finally:
-            cur.close()
+            if db:
+                db.close()
 
     def auth_user(self, username, password):
+        db = None
         try:
-            cur = self.db.cursor()
-            cur.execute("SELECT id, password FROM users WHERE username=%s", (username,))
+            db = self._get_connection()
+            cur = db.cursor()
+            cur.execute("SELECT id, password FROM users WHERE username=?", (username,))
             result = cur.fetchone()
 
             if result:
@@ -95,50 +104,62 @@ class Helper:
             print("Error:", e)
             return 0
         finally:
-            cur.close()
+            if db:
+                db.close()
 
-    def save_lesson(self, title, original, simplified, audio, video):
+    def save_lesson(self, user_id, title, original, simplified, audio, video):
+        db = None
         try:
-            cur = self.db.cursor()
+            db = self._get_connection()
+            cur = db.cursor()
             query = """
-            INSERT INTO lessons (title, original_text, simplified_text, audio_path, video_path)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO lessons (user_id, title, original_text, simplified_text, audio_path, video_path)
+            VALUES (?, ?, ?, ?, ?, ?)
             """
-            cur.execute(query, (title, original, simplified, audio, video))
-            self.db.commit()
+            cur.execute(query, (user_id, title, original, simplified, audio, video))
+            db.commit()
 
-            return cur.lastrowid  # return lesson ID
+            return cur.lastrowid
 
         except Exception as e:
             print("Error:", e)
             return 0
         finally:
-            cur.close()
+            if db:
+                db.close()
 
-    def get_lessons(self):
+    def get_lessons(self, user_id=None):
+        db = None
         try:
-            cur = self.db.cursor()
-            cur.execute("SELECT * FROM lessons ORDER BY created_at DESC")
+            db = self._get_connection()
+            cur = db.cursor()
+            if user_id:
+                cur.execute("SELECT * FROM lessons WHERE user_id=? ORDER BY created_at DESC", (user_id,))
+            else:
+                cur.execute("SELECT * FROM lessons ORDER BY created_at DESC")
             return cur.fetchall()
 
         except Exception as e:
             print("Error:", e)
             return []
         finally:
-            cur.close()
+            if db:
+                db.close()
 
 
     def save_progress(self, user_id, lesson_id, score, level):
+        db = None
         try:
-            cur = self.db.cursor()
+            db = self._get_connection()
+            cur = db.cursor()
 
             query = """
             INSERT INTO progress (user_id, lesson_id, score, level, status)
-            VALUES (%s, %s, %s, %s, 'completed')
+            VALUES (?, ?, ?, ?, 'completed')
             """
 
             cur.execute(query, (user_id, lesson_id, score, level))
-            self.db.commit()
+            db.commit()
 
             return True
 
@@ -146,17 +167,20 @@ class Helper:
             print("Error:", e)
             return False
         finally:
-            cur.close()
+            if db:
+                db.close()
 
     def get_user_progress(self, user_id):
+        db = None
         try:
-            cur = self.db.cursor()
+            db = self._get_connection()
+            cur = db.cursor()
 
             query = """
             SELECT p.score, p.level, l.title
             FROM progress p
             JOIN lessons l ON p.lesson_id = l.id
-            WHERE p.user_id = %s
+            WHERE p.user_id = ?
             """
 
             cur.execute(query, (user_id,))
@@ -166,4 +190,33 @@ class Helper:
             print("Error:", e)
             return []
         finally:
-            cur.close()
+            if db:
+                db.close()
+
+    def get_user_stats(self, user_id):
+        """Get user statistics for dashboard."""
+        db = None
+        try:
+            db = self._get_connection()
+            cur = db.cursor()
+            
+            cur.execute("SELECT COUNT(*) FROM lessons WHERE user_id=?", (user_id,))
+            lesson_count = cur.fetchone()[0]
+            
+            cur.execute("SELECT COUNT(*) FROM progress WHERE user_id=? AND status='completed'", (user_id,))
+            completed = cur.fetchone()[0]
+            
+            cur.execute("SELECT AVG(score) FROM progress WHERE user_id=?", (user_id,))
+            avg_score = cur.fetchone()[0] or 0
+            
+            return {
+                "lessons": lesson_count,
+                "completed": completed,
+                "avg_score": round(avg_score, 1)
+            }
+        except Exception as e:
+            print("Error:", e)
+            return {"lessons": 0, "completed": 0, "avg_score": 0}
+        finally:
+            if db:
+                db.close()
