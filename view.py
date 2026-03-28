@@ -112,7 +112,7 @@ def doc_convert():
 
 @view.route('/run-magic', methods=['POST'])
 def run_magic():
-    
+
     try:
         data = request.get_json()
         text = data.get('text')
@@ -166,17 +166,81 @@ def run_magic():
 @view.route('/generate_quiz', methods=['POST'])
 def generate_quiz():
     try:
-        data = request.get_json()
-        categories = data.get('categories', [])
-        difficulty = data.get('difficulty', 'Easy')
-        num = data.get('num', '5')
+        context_text = ''
+        difficulty = 'simple'
+        num = 5
 
-        quiz_text = generate_quiz_content(categories, difficulty, num)
-        return jsonify({"quiz": quiz_text})
+        if request.content_type and request.content_type.startswith('application/json'):
+            data = request.get_json() or {}
+            context_text = data.get('text', '').strip()
+            difficulty = data.get('difficulty', 'simple')
+            num = int(data.get('num', 5))
+        else:
+            # support form + file upload (pdf)
+            context_text = request.form.get('text', '').strip()
+            difficulty = request.form.get('difficulty', 'simple')
+            num = int(request.form.get('num', 5))
+
+            file = request.files.get('file')
+            if file and file.filename.lower().endswith('.pdf'):
+                import PyPDF2
+                reader = PyPDF2.PdfReader(file)
+                pdf_text = ''
+                for page in reader.pages:
+                    text_page = page.extract_text()
+                    if text_page:
+                        pdf_text += text_page + '\n'
+                if pdf_text.strip():
+                    context_text = pdf_text.strip()
+
+        if not context_text:
+            return jsonify({"success": False, "error": "Please provide text or document content."}), 400
+
+        num = max(5, min(num, 8))
+
+        quiz_content = generate_quiz_content(context_text, difficulty, num)
+
+        if isinstance(quiz_content, list):
+            return jsonify({"success": True, "quiz": quiz_content})
+
+        return jsonify({"success": False, "error": "Quiz generation returned unexpected result.", "raw": quiz_content}), 500
 
     except Exception as e:
         print(f"QUIZ ERROR: {e}")
-        return jsonify({"quiz": "Error generating quiz. Please try again."}), 500
+        return jsonify({"success": False, "error": "Error generating quiz. Please try again."}), 500
+
+
+@view.route('/submit_quiz', methods=['POST'])
+def submit_quiz():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+
+    try:
+        data = request.get_json() or {}
+        text = data.get('text', '').strip()
+        score = int(data.get('score', 0))
+        total = int(data.get('total', 0))
+        difficulty = data.get('difficulty', 'simple')
+        title = data.get('title', f"Quiz session ({difficulty.capitalize()})")
+
+        # Save the quiz as a lesson and progress record
+        lesson_id = db.save_lesson(
+            user_id=session.get('user_id'),
+            title=title,
+            original=text,
+            simplified='',
+            audio='QUIZ',
+            video=''
+        )
+
+        if lesson_id:
+            db.save_progress(session.get('user_id'), lesson_id, score, difficulty)
+
+        return jsonify({'success': True, 'saved': True, 'score': score, 'total': total})
+
+    except Exception as e:
+        print(f"SUBMIT QUIZ ERROR: {e}")
+        return jsonify({'success': False, 'error': 'Could not submit quiz results.'}), 500
 
 
 @view.route('/summarize-pdf', methods=['POST'])

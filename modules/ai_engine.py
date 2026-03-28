@@ -28,7 +28,7 @@ def get_magic_data(complex_text, language="Simple English"):
     try:
         # FIXED: Added 'llama-3.1-8b-instant' as the model
         completion = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="openai/gpt-oss-120b",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.5,
             max_tokens=500
@@ -63,28 +63,79 @@ def generate_magic_lesson(complex_text):
     }
 
 
-def generate_quiz_content(categories, difficulty, num_questions):
+def generate_quiz_content(context_text, difficulty, num_questions):
     """
-    Uses Groq to generate quiz questions using the fast 8b model.
+    Uses Groq to generate quiz questions from provided document text.
     """
-    topic = ", ".join(categories)
+    difficulty_instruction = {
+        'simple': 'Keep questions easy and focused on direct facts.',
+        'medium': 'Use intermediate challenge with some inference required.',
+        'difficult': 'Use harder critical-thinking questions based on details.'
+    }.get(difficulty.lower(), 'Use a balanced difficulty.')
+
     prompt = (
-        f"Generate {num_questions} MCQ questions on {topic}.\n"
-        f"Difficulty: {difficulty}.\n"
-        f"Provide Question, 4 options (A,B,C,D), Correct answer, and Explanation."
+        f"Based on the following text, generate {num_questions} multiple-choice questions. "
+        f"Each question should include 4 options (A,B,C,D), the correct answer letter, and a short explanation. "
+        f"Difficulty: {difficulty.capitalize()}. {difficulty_instruction}\n\n"
+        f"Text:\n{context_text[:4500]}\n\n"
+        f"Output must be valid JSON like:\n"
+        f"{{\n  \"quiz\": [\n    {{\n      \"question\": \"...\",\n      \"options\": [\"...\", \"...\", \"...\", \"...\"],\n      \"answer\": \"A\",\n      \"explanation\": \"...\"\n    }}\n  ]\n}}"
     )
 
     try:
         completion = client.chat.completions.create(
-            model="llama-3.1-8b-instant", # Faster for simple tasks like quizes
+            model="openai/gpt-oss-120b",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
             max_tokens=2000
         )
-        return completion.choices[0].message.content
+
+        full_text = completion.choices[0].message.content
+        import json
+        try:
+            parsed = json.loads(full_text)
+            if isinstance(parsed, dict) and 'quiz' in parsed and isinstance(parsed['quiz'], list):
+                if parsed['quiz']:
+                    return parsed['quiz']
+            # if parsed but not in expected format, fallback below
+            print('QUIZ PARSE WARNING: parsed output unexpected, falling back')
+        except json.JSONDecodeError:
+            print('QUIZ PARSE ERROR: JSON decode failed, falling back')
+
     except Exception as e:
         print(f"❌ GROQ QUIZ ERROR: {e}")
-        return "Error generating quiz. Please try again."
+
+    # Fallback question generator (non-AI) if API call fails or returns bad data
+    cleaned_text = ' '.join(context_text.replace('\n', ' ').split())
+    sentences = [s.strip() for s in cleaned_text.split('.') if s.strip()]
+    basic_questions = []
+    for i, sentence in enumerate(sentences[:num_questions]):
+        if ' is ' in sentence:
+            subject, remainder = sentence.split(' is ', 1)
+            q = f"What is {subject.strip()}?"
+            choices = [
+                sentence.strip()[:min(50, len(sentence.strip()))],
+                'A process that involves multiple steps',
+                'A concept unrelated to the topic',
+                'An unknown definition'
+            ]
+            basic_questions.append({
+                'question': q,
+                'options': [choices[0], choices[1], choices[2], choices[3]],
+                'answer': 'A',
+                'explanation': f"{subject.strip()} is defined in the text as: {sentence.strip()}"
+            })
+        else:
+            q = f"Which statement best describes: {sentence[:60]}... ?"
+            basic_questions.append({
+                'question': q,
+                'options': ['Correct description', 'Incorrect option', 'Maybe true', 'Not related'],
+                'answer': 'A',
+                'explanation': 'Generated fallback question for text content.'
+            })
+
+    return basic_questions
+
 
 
 def summarize_text(text, summary_type="Short", output_format="Paragraph", language="Normal English"):
@@ -105,7 +156,7 @@ def summarize_text(text, summary_type="Short", output_format="Paragraph", langua
 
     try:
         completion = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="openai/gpt-oss-120b",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.5,
             max_tokens=1000
@@ -125,4 +176,31 @@ def summarize_text(text, summary_type="Short", output_format="Paragraph", langua
         }
     except Exception as e:
         print(f"❌ GROQ SUMMARIZE ERROR: {e}")
-        return {"summary": "Error generating summary.", "bullets": [], "concepts": []}
+
+        # Fallback local summarization when Groq is unavailable.
+        text_clean = ' '.join(text.replace('\n', ' ').split())
+        sentences = [s.strip() for s in text_clean.split('.') if s.strip()]
+        if not sentences:
+            return {"summary": "No text found in PDF.", "bullets": [], "concepts": []}
+
+        if summary_type == 'Detailed':
+            summary_sentences = sentences[:min(6, len(sentences))]
+        else:
+            summary_sentences = sentences[:min(3, len(sentences))]
+
+        summary_fallback = ' '.join(summary_sentences)
+        bullets_fallback = [s.strip() + '.' for s in summary_sentences[:3]]
+
+        # Derive simple concepts (frequent words excluding stopwords)
+        stopwords = set(["the","and","is","in","to","of","a","for","with","on","as","that","this","it","from","by"])
+        words = [w.lower().strip('.,?!:;') for w in text_clean.split() if w.isalpha() and w.lower() not in stopwords]
+        concepts = []
+        for w in sorted(set(words), key=lambda x: words.count(x), reverse=True):
+            if w not in concepts and len(concepts) < 5:
+                concepts.append(w)
+
+        return {
+            "summary": summary_fallback,
+            "bullets": bullets_fallback,
+            "concepts": concepts[:3]
+        }
