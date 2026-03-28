@@ -112,6 +112,7 @@ def doc_convert():
 
 @view.route('/run-magic', methods=['POST'])
 def run_magic():
+    
     try:
         data = request.get_json()
         text = data.get('text')

@@ -146,7 +146,7 @@
         <button onclick="cycleTheme()" class="text-gray-400 hover:text-[var(--primary)] text-xl">
             <i class="fa-solid fa-circle-half-stroke"></i>
         </button>
-        <a href="#" class="text-gray-400 hover:text-red-500 text-xl">
+        <a href="{{ url_for('auth.logout') }}" class="text-gray-400 hover:text-red-500 text-xl">
             <i class="fa-solid fa-power-off"></i>
         </a>
     </div>
