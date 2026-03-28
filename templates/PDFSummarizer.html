@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Summarizer</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+}
+
+/* Container */
+.container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+/* Card */
+.card {
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    margin-bottom: 20px;
+}
+
+/* Header */
+h1 {
+    margin-bottom: 5px;
+}
+.subtitle {
+    color: #94a3b8;
+}
+
+/* Upload */
+.upload-box {
+    border: 2px dashed #475569;
+    padding: 20px;
+    text-align: center;
+    border-radius: 10px;
+    cursor: pointer;
+}
+.upload-box:hover {
+    background: #334155;
+}
+
+/* Buttons */
+button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(to right, #3b82f6, #8b5cf6);
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+}
+button:hover {
+    opacity: 0.9;
+}
+
+/* Options */
+.options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.option-group {
+    margin-top: 10px;
+}
+
+/* Output */
+.output-box {
+    background: #020617;
+    padding: 15px;
+    border-radius: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Accessibility */
+.large-text {
+    font-size: 20px;
+}
+.high-contrast {
+    background: black;
+    color: yellow;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Header -->
+    <h1>📄 PDF Summarizer</h1>
+    <p class="subtitle">Convert long PDFs into simple, accessible summaries</p>
+
+    <!-- Upload Section -->
+    <div class="card">
+        <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+            Upload PDF 📄
+        </div>
+        <input type="file" id="fileInput" hidden accept=".pdf">
+        <p id="fileName"></p>
+    </div>
+
+    <!-- Options -->
+    <div class="card">
+
+        <h3>⚙️ Options</h3>
+
+        <div class="option-group">
+            <p>Summary Type:</p>
+            <select id="summaryType">
+                <option>Short</option>
+                <option>Detailed</option>
+            </select>
+        </div>
+
+        <div class="option-group">
+            <p>Output Format:</p>
+            <select id="format">
+                <option>Paragraph</option>
+                <option>Bullet Points</option>
+            </select>
+        </div>
+
+        <div class="option-group">
+            <p>Language Mode:</p>
+            <select id="language">
+                <option>Normal English</option>
+                <option>Easy Language</option>
+                <option>Hindi</option>
+            </select>
+        </div>
+
+        <div class="option-group">
+            <p>Accessibility:</p>
+            <label><input type="checkbox" id="audio"> Audio Summary</label>
+            <label><input type="checkbox" id="largeText"> Large Text</label>
+            <label><input type="checkbox" id="contrast"> High Contrast</label>
+        </div>
+
+    </div>
+
+    <!-- Button -->
+    <div class="card" style="text-align:center;">
+        <button onclick="generateSummary()">✨ Summarize with AI</button>
+    </div>
+
+    <!-- Output -->
+    <div class="card">
+        <h3>📥 Output</h3>
+
+        <div id="summary" class="output-box"></div>
+
+        <h4>📌 Bullet Points</h4>
+        <ul id="bullets"></ul>
+
+        <h4>🧠 Key Concepts</h4>
+        <ul id="concepts"></ul>
+
+        <audio id="audioPlayer" controls style="display:none;"></audio>
+
+        <br><br>
+        <button onclick="copyText()">Copy</button>
+    </div>
+
+</div>
+
+<script>
+// File Name Show
+document.getElementById("fileInput").addEventListener("change", function () {
+    document.getElementById("fileName").innerText = "Selected: " + this.files[0].name;
+});
+
+// Fake AI Summary (Frontend Demo)
+function generateSummary() {
+
+    let summary = document.getElementById("summary");
+    let bullets = document.getElementById("bullets");
+    let concepts = document.getElementById("concepts");
+
+    summary.innerText = "AI is generating summary...";
+
+    setTimeout(() => {
+
+        summary.innerText = "This is a simplified summary of your PDF. It explains the main concepts in an easy way.";
+
+        bullets.innerHTML = `
+            <li>Main idea of the document</li>
+            <li>Important concept explained</li>
+            <li>Conclusion summary</li>
+        `;
+
+        concepts.innerHTML = `
+            <li>Artificial Intelligence</li>
+            <li>Machine Learning</li>
+            <li>Data Processing</li>
+        `;
+
+        // Accessibility
+        if (document.getElementById("largeText").checked) {
+            summary.classList.add("large-text");
+        }
+
+        if (document.getElementById("contrast").checked) {
+            document.body.classList.add("high-contrast");
+        }
+
+        if (document.getElementById("audio").checked) {
+            let audio = document.getElementById("audioPlayer");
+            audio.style.display = "block";
+            audio.src = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
+        }
+
+    }, 1500);
+}
+
+// Copy
+function copyText() {
+    let text = document.getElementById("summary").innerText;
+    navigator.clipboard.writeText(text);
+    alert("Copied!");
+}
+</script>
+
+</body>
+</html>

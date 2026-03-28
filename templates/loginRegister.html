@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>SunoPadho | Authenticate</title>
+    <style>
+        /* ----- REBRANDED THEME: Vibrant Purple & Coral ----- */
+        :root {
+            --primary-color: #c026d3;      /* bold fuchsia-purple */
+            --secondary-color: #f43f5e;    /* electric coral red */
+            --black: #0f0f12;
+            --white: #ffffff;
+            --gray: #f9f9fc;
+            --gray-2: #4b5563;
+
+            --facebook-color: #1877F2;
+            --google-color: #EA4335;
+            --twitter-color: #1DA1F2;
+            --insta-color: #E1306C;
+
+            /* additional accent */
+            --glow-effect: rgba(192, 38, 211, 0.25);
+            --input-focus: #f43f5e;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800&display=swap');
+
+        * {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            height: 100vh;
+        }
+
+        .col {
+            width: 50%;
+        }
+
+        .align-items-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .flex-col {
+            flex-direction: column;
+        }
+
+        .form-wrapper {
+            width: 100%;
+            max-width: 28rem;
+        }
+
+        .form {
+            padding: 1.8rem;
+            background-color: var(--white);
+            border-radius: 2rem;
+            width: 100%;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(192, 38, 211, 0.1);
+            transform: scale(0);
+            transition: 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
+            transition-delay: 0.9s;
+            backdrop-filter: blur(0px);
+        }
+
+        .input-group {
+            position: relative;
+            width: 100%;
+            margin: 1.2rem 0;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            background-color: var(--gray);
+            border-radius: 2rem;
+            border: 2px solid #e9e9f0;
+            outline: none;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .input-group input:focus {
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 0 0 3px var(--glow-effect);
+            background-color: white;
+        }
+
+        .form button {
+            cursor: pointer;
+            width: 100%;
+            padding: 0.85rem 0;
+            border-radius: 3rem;
+            border: none;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: var(--white);
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 18px rgba(192, 38, 211, 0.3);
+        }
+
+        .form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(244, 63, 94, 0.35);
+        }
+
+        .form p {
+            margin: 1.5rem 0 0.5rem;
+            font-size: 0.85rem;
+            color: var(--gray-2);
+            font-weight: 500;
+        }
+
+        .pointer {
+            cursor: pointer;
+            color: var(--primary-color);
+            font-weight: 700;
+            transition: color 0.2s;
+            background: linear-gradient(120deg, var(--primary-color), var(--secondary-color));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .pointer:hover {
+            opacity: 0.85;
+            background: linear-gradient(120deg, var(--secondary-color), var(--primary-color));
+            background-clip: text;
+            -webkit-background-clip: text;
+        }
+
+        .container.sign-in .form.sign-in,
+        .container.sign-up .form.sign-up {
+            transform: scale(1);
+        }
+
+        /* dynamic background panels */
+        .content-row {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 6;
+            width: 100%;
+        }
+
+        .text {
+            margin: 4rem;
+            color: var(--white);
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .text h2 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin: 2rem 0;
+            transition: 0.6s ease-in-out;
+            letter-spacing: -0.02em;
+            backdrop-filter: blur(2px);
+        }
+
+        .text.sign-in h2 {
+            transform: translateX(-250%);
+        }
+
+        .text.sign-up h2 {
+            transform: translateX(250%);
+        }
+
+        .container.sign-in .text.sign-in h2,
+        .container.sign-up .text.sign-up h2 {
+            transform: translateX(0);
+        }
+
+        /* NEW ANIMATED GRADIENT (replaces old blue gradient) */
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 100vh;
+            width: 300vw;
+            transform: translate(35%, 0);
+            background: radial-gradient(circle at 30% 10%, rgba(192, 38, 211, 0.95), rgba(244, 63, 94, 0.9)),
+                        linear-gradient(125deg, #c026d3, #f43f5e, #a21caf);
+            background-blend-mode: overlay;
+            transition: 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+            z-index: 6;
+            border-bottom-right-radius: max(50vw, 50vh);
+            border-top-left-radius: max(50vw, 50vh);
+            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .container.sign-in::before {
+            transform: translate(0, 0);
+            right: 50%;
+        }
+
+        .container.sign-up::before {
+            transform: translate(100%, 0);
+            right: 50%;
+        }
+
+        /* small decorative elements */
+        .input-group input::placeholder {
+            color: #a0a0b0;
+            font-weight: 400;
+        }
+
+        /* responsive refinements */
+        @media only screen and (max-width: 650px) {
+            .container::before,
+            .container.sign-in::before,
+            .container.sign-up::before {
+                height: 100vh;
+                border-radius: 0;
+                z-index: 0;
+                transform: none;
+                right: 0;
+                background: linear-gradient(145deg, #c026d3, #f43f5e);
+            }
+
+            .col {
+                width: 100%;
+                position: absolute;
+                padding: 2rem 1.5rem;
+                background-color: rgba(255, 255, 255, 0.97);
+                border-top-left-radius: 2rem;
+                border-top-right-radius: 2rem;
+                transform: translateY(100%);
+                transition: 0.7s ease-in-out;
+                backdrop-filter: blur(2px);
+                box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+            }
+
+            .row {
+                align-items: flex-end;
+                justify-content: flex-end;
+            }
+
+            .text {
+                margin: 0;
+                padding: 2rem 1rem;
+            }
+
+            .text h2 {
+                margin: 0.5rem;
+                font-size: 2.2rem;
+                font-weight: 700;
+            }
+
+            .form {
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                border-radius: 1.8rem;
+            }
+
+            .container.sign-in .col.sign-in,
+            .container.sign-up .col.sign-up {
+                transform: translateY(0);
+            }
+        }
+
+        /* subtle extra micro-interactions */
+        .form {
+            transition-delay: 0.5s;
+        }
+
+        .input-group input {
+            font-weight: 500;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        /* custom style for better visibility on small */
+        @media only screen and (max-width:425px) {
+            .text h2 {
+                font-size: 1.8rem;
+            }
+            .form-wrapper {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="container" class="container">
+
+    <div class="row">
+
+        <!-- SIGN UP PANEL -->
+        <div class="col align-items-center flex-col sign-up">
+            <div class="form-wrapper align-items-center">
+                <div class="form sign-up">
+                    <form class="sign-up" action="/register" method="POST">
+                        <div class="input-group">
+                            <input type="text" name="username" placeholder="✨ Username" autocomplete="off" required>
+                        </div>
+
+                        <div class="input-group">
+                            <input type="email" name="email" placeholder="📧 Email address" required>
+                        </div>
+
+                        <div class="input-group">
+                            <input type="password" name="password" placeholder="🔒 Create password" required>
+                        </div>
+
+                        <div class="input-group">
+                            <input type="password" name="confirm_password" placeholder="✓ Confirm password" required>
+                        </div>
+
+                        <button type="submit">🚀 Sign Up</button>
+
+                        <p>
+                            <span>Already have an account? </span>
+                            <b onclick="toggle()" class="pointer">Sign in here</b>
+                        </p>
+                        {% if error1 %}
+<p style="color:red; font-size:14px;">{{ error1 }}</p>
+{% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- SIGN IN PANEL -->
+        <div class="col align-items-center flex-col sign-in">
+            <div class="form-wrapper align-items-center">
+                <div class="form sign-in">
+                    <form class="sign-in" action="/login" method="POST">
+                        <div class="input-group">
+                            <input type="text" name="username" placeholder="👤 Username " required>
+                        </div>
+
+                        <div class="input-group">
+                            <input type="password" name="password" placeholder="🔐 Password" required>
+                        </div>
+
+                        <button type="submit">✨ Sign In</button>
+
+                        <p>
+                            <span>Don't have an account? </span>
+                            <b onclick="toggle()" class="pointer">Sign up here</b>
+                        </p>
+                        {% if error %}
+<p style="color:red; font-size:14px;">{{ error }}</p>
+{% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DYNAMIC TEXT AREA with new welcoming phrases -->
+    <div class="row content-row">
+        <div class="col align-items-center flex-col">
+            <div class="text sign-in">
+                <h2>Welcome back<br>✨ </h2>
+            </div>
+        </div>
+        <div class="col align-items-center flex-col">
+            <div class="text sign-up">
+                <h2>Join with<br>✨ us </h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let container = document.getElementById("container");
+
+    // Smooth toggle between sign-in & sign-up
+    function toggle() {
+        container.classList.toggle("sign-in");
+        container.classList.toggle("sign-up");
+        // optional: add haptic micro-feedback for fun
+        if (window.innerWidth <= 650) {
+            // small vibration effect? just visual, not needed
+        }
+    }
+
+    
+    setTimeout(() => {
+        container.classList.add("sign-in");
+    }, 180);
+
+    
+    console.log("✨ vibrant theme — purple & coral active ✨");
+</script>
+</body>
+</html>
