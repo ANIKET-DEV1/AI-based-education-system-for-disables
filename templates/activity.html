@@ -20,6 +20,21 @@
         </div>
     </div>
 
+    <!-- Smart AI Feedback Panel -->
+    <div class="glass-card p-8 rounded-[2rem] border-l-4 border-blue-500 bg-gradient-to-r from-blue-500/10 to-transparent relative overflow-hidden transition-all duration-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.2)]">
+        <div class="absolute -right-4 -top-4 text-9xl opacity-10 transform -rotate-12">🤖</div>
+        <h3 class="text-xl font-bold mb-3 text-blue-400 drop-shadow-md"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Tutor Feedback</h3>
+        <p class="text-gray-200 leading-relaxed text-lg" aria-label="Tutor Feedback text">
+            {% if stats.avg_score >= 80 %}
+                Outstanding work! Your average score of <strong>{{ stats.avg_score }}%</strong> is phenomenal. You are deeply understanding the simplified materials. Keep using the Magic Simplifier for tough concepts!
+            {% elif stats.avg_score > 0 %}
+                You are making steady progress! Try using the Doc Reader's Voice feature if you find reading long texts tiring.
+            {% else %}
+                Welcome to your learning journey! Start by uploading a document or asking the AI Tutor a question to get your stats moving.
+            {% endif %}
+        </p>
+    </div>
+
     <div class="glass-card p-8 rounded-[2rem]">
         <h3 class="text-xl font-bold mb-6">Recent Progress</h3>
         {% if progress %}
@@ -40,4 +55,25 @@
     </div>
 
 </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+    // Trigger confetti on load to celebrate their progress!
+    window.onload = () => {
+        {% if stats.avg_score > 0 %}
+        const duration = 2.5 * 1000;
+        const end = Date.now() + duration;
+
+        (function frame() {
+            confetti({ particleCount: 6, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#818CF8', '#F472B6', '#34D399', '#FBBC05'] });
+            confetti({ particleCount: 6, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#818CF8', '#F472B6', '#34D399', '#FBBC05'] });
+            if (Date.now() < end) requestAnimationFrame(frame);
+        }());
+        {% endif %}
+        
+        if (typeof speak === 'function') {
+            setTimeout(() => speak("Here are your learning statistics. Great job so far!"), 500);
+        }
+    };
+</script>
 {% endblock %}

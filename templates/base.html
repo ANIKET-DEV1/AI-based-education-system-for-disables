@@ -39,10 +39,7 @@
         
         .header-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); transition: 0.2s; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; }
         .header-btn:hover { background: rgba(255,255,255,0.15); transform: scale(1.05); }
-        #spkBtn:hover i {
-    transform: scale(1.2);
-    transition: transform 0.2s;
-}
+        #spkBtn:hover i { transform: scale(1.2); transition: transform 0.2s; }
     </style>
 </head>
 
@@ -85,18 +82,19 @@
             <button id="hoverToggle" onclick="toggleHoverSystem()" 
                     class="header-btn px-4 text-xs font-black tracking-widest text-gray-400" 
                     aria-label="Toggle Smart Hover Reader Mode"><i class="fa-solid fa-closed-captioning"></i></button>
-            
+
             <div class="flex items-center glass-card rounded-xl p-1 gap-1">
                 <button onclick="fnt(2)" class="w-10 h-10 hover:text-blue-400 font-bold transition" aria-label="Increase text size">A+</button>
                 <div class="w-[1px] h-4 bg-white/10"></div>
                 <button onclick="fnt(-2)" class="w-10 h-10 hover:text-blue-400 font-bold transition" aria-label="Decrease text size">A-</button>
             </div>
             
-    class="header-btn flex items-center justify-center text-white"
-    style="width:3rem; height:3rem; font-size:1.5rem;" 
-    aria-label="Listen to page summary">
-    🔊
-</button>
+            <button id="spkBtn" onclick="readMainContent()" 
+                class="header-btn flex items-center justify-center text-white"
+                style="width:3rem; height:3rem; font-size:1.5rem;" 
+                aria-label="Listen to page summary">
+                🔊
+            </button>
         </div>
     </header>
 
@@ -114,17 +112,14 @@
 <script>
 const state = {
     th: localStorage.getItem('th') || 'dark',
-    fs: parseInt(localStorage.getItem('fs')) || 16, // base font size
+    fs: parseInt(localStorage.getItem('fs')) || 16,
     isHoverEnabled: false
 };
 
 const synth = window.speechSynthesis;
 
 function applyState() {
-    // 0. Apply theme to body
     document.body.className = state.th;
-
-    // 1. Set root font size (everything uses rem)
     document.documentElement.style.fontSize = state.fs + 'px';
 
     // 2. Update sidebar icons (nav)

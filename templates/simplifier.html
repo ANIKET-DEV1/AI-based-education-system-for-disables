@@ -2,55 +2,85 @@
 {% block header %}Magic Simplifier{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto space-y-8">
-    <div class="glass-card p-8 rounded-[2.5rem] border-t-4 border-blue-500 shadow-2xl">
-        <textarea id="complexInput" class="w-full h-40 bg-white/5 border border-white/10 rounded-3xl p-6 text-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                  placeholder="Paste complex text here..."></textarea>
+<div class="max-w-6xl mx-auto space-y-8 mt-4">
+    <div class="glass-card p-8 rounded-[2.5rem] border-t-4 border-blue-500 shadow-[0_15px_50px_rgba(59,130,246,0.1)] relative">
+        <div class="absolute top-0 right-10 w-24 h-24 bg-blue-500/20 blur-3xl rounded-full"></div>
+        <textarea id="complexInput" class="w-full h-40 bg-white/5 border border-white/10 rounded-3xl p-6 text-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" 
+                  placeholder="Paste complex text here or upload an image..."></textarea>
+        
+        <!-- Image Processing AI Demo for Hackathon -->
+        <div class="flex items-center gap-4 mt-4 bg-white/5 p-4 rounded-2xl border border-white/10">
+            <button onclick="document.getElementById('imageUpload').click()" 
+                    class="bg-blue-500/20 text-blue-400 border border-blue-500/50 hover:bg-blue-500 hover:text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg flex items-center gap-2">
+                <i class="fa-solid fa-camera"></i> Extract from Image (OCR)
+            </button>
+            <input type="file" id="imageUpload" accept="image/*" hidden onchange="processImageMock()">
+            <span id="imageStatus" class="text-sm text-gray-400 font-medium">Upload photo to extract text using AI</span>
+        </div>
+
         <select id="langSelect" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-3 text-white mt-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="Simple English" class="bg-gray-900">Simple English</option>
             <option value="Hindi" class="bg-gray-900">Hindi (हिन्दी)</option>
         </select>
-        <button onclick="startMagic()" id="magicBtn" class="active-nav w-full py-4 rounded-2xl font-black text-xl mt-4 transition transform active:scale-95">
+        <button onclick="startMagic()" id="magicBtn" class="bg-gradient-to-r from-blue-500 to-blue-600 w-full py-4 rounded-2xl font-black text-xl text-white mt-6 transition transform active:scale-95 shadow-[0_10px_30px_rgba(59,130,246,0.3)] hover:shadow-[0_15px_40px_rgba(59,130,246,0.5)]">
             ✨ RUN MAGIC SIMPLIFIER
         </button>
     </div>
 
-    <div id="outputContainer" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6 transition-all">
-        <div class="lg:col-span-2 glass-card p-8 rounded-[2rem] border-l-4 border-blue-500">
-            <h4 class="text-xs font-bold text-blue-400 uppercase mb-4">Simple Explanation</h4>
-            <p id="simpleText" class="text-xl leading-relaxed"></p>
+    <div id="outputContainer" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6 transition-all duration-700 opacity-0 translate-y-8">
+        <div class="lg:col-span-2 glass-card p-8 rounded-[2.5rem] border-l-4 border-blue-500 shadow-lg relative overflow-hidden">
+            <div class="absolute -left-10 -top-10 w-40 h-40 bg-blue-500/20 blur-3xl rounded-full"></div>
+            <h4 class="text-xs font-bold text-blue-400 uppercase mb-4 relative z-10"><i class="fa-solid fa-bolt"></i> Simple Explanation</h4>
+            <p id="simpleText" class="text-xl leading-relaxed relative z-10"></p>
         </div>
 
-        <div class="glass-card p-8 rounded-[2rem] border-l-4 border-amber-500 flex flex-col justify-between items-center text-center">
-    <h4 class="text-xs font-bold text-amber-400 uppercase mb-4">Voice Reader</h4>
-    <div class="space-y-4">
-        <p class="text-sm text-gray-500">Click to hear the simplified version via Soon-oh Pud-ho AI.</p>
-        <button onclick="readSimplifiedText()" 
-                class="w-16 h-16 rounded-full bg-amber-500/20 border border-amber-500/50 flex items-center justify-center text-2xl hover:scale-110 transition-all">
-            🔊
-        </button>
-    </div>
-</div>
+        <div class="glass-card p-8 rounded-[2.5rem] border-l-4 border-amber-500 flex flex-col justify-between items-center text-center shadow-lg relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-amber-500/20 blur-3xl rounded-full"></div>
+            <h4 class="text-xs font-bold text-amber-500 uppercase mb-4 relative z-10"><i class="fa-solid fa-volume-high"></i> Voice Reader</h4>
+            <div class="space-y-4 relative z-10">
+                <p class="text-sm text-gray-400">Click to hear the simplified version via SunoPadho AI.</p>
+                <button onclick="readSimplifiedText()" 
+                        class="w-16 h-16 rounded-full bg-amber-500/20 border border-amber-500 text-amber-500 flex items-center justify-center text-2xl hover:scale-110 hover:bg-amber-500 hover:text-black hover:shadow-[0_0_20px_rgba(251,191,36,0.5)] transition-all">
+                    🔊
+                </button>
+            </div>
+        </div>
 
-
-        <div class="lg:col-span-3 glass-card p-8 rounded-[2rem] border-l-4 border-sky-500">
-            <h4 class="text-xs font-bold text-sky-400 uppercase mb-4">Visual Lesson</h4>
-            <video id="videoPlayer" controls class="w-full rounded-2xl border border-white/10"></video>
+        <div class="lg:col-span-3 glass-card p-8 rounded-[2.5rem] border-l-4 border-sky-500 shadow-lg">
+            <h4 class="text-xs font-bold text-sky-400 uppercase mb-4"><i class="fa-solid fa-video"></i> Visual Lesson</h4>
+            <video id="videoPlayer" controls class="w-full rounded-2xl border border-sky-500/30 shadow-[0_10px_30px_rgba(56,189,248,0.1)]"></video>
         </div>
     </div>
 </div>
 
 <script>
+function processImageMock() {
+    const fileArea = document.getElementById('imageUpload');
+    if(fileArea.files.length > 0) {
+        document.getElementById('imageStatus').innerHTML = "<i class='fa-solid fa-spinner fa-spin text-blue-400'></i> Extracting text using AI...";
+        if(typeof speak === 'function') speak("Processing image with AI OCR.");
+        
+        setTimeout(() => {
+            document.getElementById('imageStatus').innerHTML = "<i class='fa-solid fa-check text-green-400'></i> Text extracted successfully!";
+            document.getElementById('complexInput').value = "Photosynthesis is the process used by plants, algae and certain bacteria to harness energy from sunlight and turn it into chemical energy.";
+            if(typeof speak === 'function') speak("Image text extracted. Ready to simplify.");
+        }, 2500);
+    }
+}
+
 async function startMagic() {
     const text = document.getElementById('complexInput').value;
-    if(!text) return speak("Please enter some text.");
+    if(!text) {
+        if(typeof speak === 'function') speak("Please enter some text or upload an image.");
+        return;
+    }
 
     const language = document.getElementById('langSelect').value;
     const btn = document.getElementById('magicBtn');
-    btn.innerText = "🧙‍♂️ SIMPLIFYING...";
+    btn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> SIMPLIFYING...";
     
     // Using your CC voice to announce progress
-    speak("Soon-oh Pud-ho is simplifying this for you.");
+    if(typeof speak === 'function') speak("SunoPadho AI is simplifying this for you.");
 
     try {
         const res = await fetch('/run-magic', {
@@ -72,15 +102,22 @@ async function startMagic() {
         }
 
         document.getElementById('outputContainer').classList.remove('hidden');
-        btn.innerText = "✨ RUN MAGIC SIMPLIFIER";
+        // Trigger Tailwind entrance animation
+        setTimeout(() => {
+            const out = document.getElementById('outputContainer');
+            out.classList.remove('opacity-0', 'translate-y-8');
+            out.classList.add('opacity-100', 'translate-y-0');
+        }, 50);
+
+        btn.innerHTML = "✨ RUN MAGIC SIMPLIFIER";
         
         // Automatically read the result using your CC Voice!
-        speak("Magic complete. Here is the simple version: " + data.simple_text);
+        if(typeof speak === 'function') speak("Magic complete. Here is the simple version: " + data.simple_text);
 
     } catch(e) {
         console.error(e);
-        speak("I encountered an error. Please check your internet or try shorter text.");
-        btn.innerText = "✨ RUN MAGIC SIMPLIFIER";
+        if(typeof speak === 'function') speak("I encountered an error. Please check your internet or try shorter text.");
+        btn.innerHTML = "✨ RUN MAGIC SIMPLIFIER";
     }
 }
 

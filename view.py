@@ -120,6 +120,26 @@ def run_magic():
         simple_text, visual_tags = get_magic_data(text, language)
         
         video_url = ""
+        try:
+            import gtts
+            import os
+            audio_filename = f"audio_{os.urandom(4).hex()}.mp3"
+            audio_path = os.path.join('static/audio', audio_filename)
+            os.makedirs('static/audio', exist_ok=True)
+            
+            # Limit TTS length for faster hackathon video logic
+            short_audio_text = simple_text[:400] 
+            tts = gtts.gTTS(text=short_audio_text, lang='hi' if language == 'Hindi' else 'en')
+            tts.save(audio_path)
+
+            from modules.video_engine import create_magic_video
+            GEMINI_API_KEY = "AIzaSyBXYa3TWQviLgplTr1vDN4d5sRgtWmMsdk"
+            video_filename = create_magic_video(audio_filename, visual_tags, api_key=GEMINI_API_KEY)
+            
+            if video_filename:
+                video_url = f"/static/videos/{video_filename}"
+        except Exception as ve:
+            print(f"Full Video Engine pipeline failed: {ve}")
 
         db.save_lesson(
             user_id=session.get("user_id"),
