@@ -187,7 +187,7 @@ def run_magic():
 
 @view.route('/generate_quiz', methods=['POST'])
 @limiter.limit("5 per hour")
-def generate_quiz():
+
 def generate_quiz():
     try:
         context_text = ''
