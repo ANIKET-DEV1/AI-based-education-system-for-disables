@@ -134,11 +134,14 @@ def run_magic():
             tts.save(audio_path)
 
             from modules.video_engine import create_magic_video
-            GEMINI_API_KEY = "AIzaSyBXYa3TWQviLgplTr1vDN4d5sRgtWmMsdk"
-            video_filename = create_magic_video(audio_filename, visual_tags, api_key=GEMINI_API_KEY)
-            
-            if video_filename:
-                video_url = f"/static/videos/{video_filename}"
+            GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+            if not GEMINI_API_KEY:
+                print("GEMINI_API_KEY is not set in environment")
+            else:
+                video_filename = create_magic_video(audio_filename, visual_tags, api_key=GEMINI_API_KEY)
+                
+                if video_filename:
+                    video_url = f"/static/videos/{video_filename}"
         except Exception as ve:
             print(f"Full Video Engine pipeline failed: {ve}")
 
@@ -276,49 +279,78 @@ def summarize_pdf():
 
 @view.route('/chatbot-ask', methods=['POST'])
 def chatbot_ask():
-    try:
-        data = request.get_json()
-        message = data.get('message', '')
+    if "user_id" not in session:
+        return jsonify({"success": False, "error": "Unauthorized"}), 401
 
-        from groq import Groq
-        client = Groq(api_key="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")
+    data = request.get_json() or {}
+    message = data.get('message', '').strip()
+    if not message:
+        return jsonify({"success": False, "error": "Empty message provided"}), 400
 
-        completion = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[
-                {"role": "system", "content": """You are the SunoPadho Help Assistant — a friendly guide that helps users navigate and use the SunoPadho AI education platform. You should ONLY answer questions related to the application and its features. If a user asks something unrelated, politely redirect them to the app features.
+    from groq import Groq
+    from groq import PermissionDeniedError, NotFoundError, BadRequestError
+    from dotenv import load_dotenv
 
-Here is what you know about the app:
+    load_dotenv()
+    groq_key = os.getenv("GROQ_API_KEY")
+    if not groq_key:
+        return jsonify({"success": False, "error": "GROQ_API_KEY is not set in environment"}), 500
 
-FEATURES:
-1. **Dashboard** — The home page showing learning stats, daily goals, and quick links to all features.
-2. **Magic Simplifier** — Users paste complex text and the AI simplifies it into easy-to-understand language with visual keywords. Click "RUN MAGIC SIMPLIFIER" to use it.
-3. **AI Quiz Generator** — Users can select topics (Programming, CS Fundamentals, General Knowledge, etc.), choose a difficulty level (Easy/Medium/Hard), and generate MCQ quizzes with AI.
-4. **Document Reader (PDF Summarizer)** — Users upload a PDF file and get an AI-powered summary. Options include: Short/Detailed summary, Paragraph/Bullet Points format, Normal/Easy/Hindi language.
-5. **Activity Tracker** — Shows the user's learning progress: lessons created, completed tasks, and average scores.
+    client = Groq(api_key=groq_key)
 
-ACCESSIBILITY FEATURES:
-- **CC Button (top right)** — Enables "Hover-to-Listen" mode. When turned on, hovering over any text reads it aloud.
-- **A+ / A- Buttons** — Increase or decrease text size for better readability.
-- **Speaker Button (🔊)** — Reads the entire page content aloud. Click again to stop.
-- **Theme Switcher (🌓)** — Cycles between Dark mode, Light mode, and High Contrast (colorblind-friendly) mode.
+    system_prompt = """You are the SunoPadho Help Assistant — a friendly guide that helps users navigate and use the SunoPadho AI education platform. You should ONLY answer questions related to the application and its features. If a user asks something unrelated, politely redirect them to the app features.
 
-HOW TO USE:
-- First, register an account and log in.
-- From the Dashboard, click on any feature card to get started.
-- Use the sidebar icons to navigate between pages.
-- Enable CC mode for voice-assisted browsing.
+Key app features:
+- Dashboard: shows learning stats and quick navigation.
+- Magic Simplifier: simplifies text and gives visual tag hints.
+- AI Quiz Generator: creates MCQ quizzes from text or topics.
+- Document Reader: summarizes PDFs into paragraph or bullets.
+- Activity Tracker: records progress and scores.
 
-Keep your answers short, friendly, and helpful. Use emojis to make it engaging. If you don't know the answer, suggest the user explore the relevant feature."""},
-                {"role": "user", "content": message}
-            ],
-            temperature=0.7,
-            max_tokens=500
-        )
+User guidance:
+- Tell them how to use the page they are on, and give concise steps.
+- Offer 2-3 example commands they can ask.
+- Keep answers short, friendly, and emoji-rich.
 
-        reply = completion.choices[0].message.content
-        return jsonify({"success": True, "reply": reply})
+If you don't know something, suggest they try existing features or ask a different question."""
 
-    except Exception as e:
-        print(f"CHATBOT ERROR: {e}")
-        return jsonify({"error": str(e)}), 500
+    models_to_try = [
+        "openai/gpt-oss-120b",
+        "moonshotai/kimi-k2-instruct",
+        "groq/compound-mini"
+    ]
+
+    last_error = None
+    for model in models_to_try:
+        try:
+            completion = client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": message}
+                ],
+                temperature=0.5,
+                max_tokens=400
+            )
+            reply = completion.choices[0].message.content
+            return jsonify({"success": True, "reply": reply, "model": model})
+
+        except (PermissionDeniedError, NotFoundError, BadRequestError) as e:
+            last_error = e
+            print(f"CHATBOT model {model} failed: {e}")
+            continue
+
+        except Exception as e:
+            print(f"CHATBOT unexpected error with model {model}: {e}")
+            last_error = e
+            continue
+
+    warning_text = f"Unable to complete via AI models: {str(last_error)}"
+    fallback = "Hi! I’m SunoPadho assistant, I can’t access AI right now.\n- Try: 'How do I use the Magic Simplifier?' or 'Generate a quiz for chapter text'.\n- Or navigate Dashboard/Quiz/Summarizer from sidebar."
+
+    return jsonify({
+        "success": True,
+        "reply": fallback,
+        "model": None,
+        "warning": warning_text
+    })

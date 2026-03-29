@@ -34,10 +34,15 @@ An AI-powered accessible learning platform built for students with learning disa
    cd AI-based-education-system-for-disables
    ```
 
-2. **Create a `.env` file** with your credentials:
+2. **Create a `.env` file** with your credentials (copy from `.env.example` and fill in your actual keys):
    ```
    GROQ_API_KEY=your_groq_api_key_here
-   SECRET_KEY=your_secret_key
+   GEMINI_API_KEY=your_gemini_api_key_here
+   DB_HOST=localhost
+   DB_USER=root
+   DB_PASS=your_database_password_here
+   DB_NAME=builditon
+   SECRET_KEY=your_secret_key_here
    ```
 
 3. **Install dependencies:**
