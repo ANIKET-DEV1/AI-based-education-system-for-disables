@@ -1,4 +1,5 @@
 import os
+from typing import Tuple
 from groq import Groq
 from dotenv import load_dotenv
 
@@ -7,7 +8,7 @@ load_dotenv()
 # Securely load the client
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-def get_magic_data(complex_text, language="Simple English"):
+def get_magic_data(complex_text: str, language: str = "Simple English") -> Tuple[str, str]:
     """
     Uses Groq's FREE tier to simplify text instantly.
     """

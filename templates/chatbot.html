@@ -6,9 +6,16 @@
 <div class="max-w-4xl mx-auto space-y-6">
 
     <div class="glass-card rounded-[2rem] p-8 border-l-8 border-[var(--primary)] transition-all duration-500">
-        <div class="mb-8">
+        <div class="mb-4">
             <h3 class="text-2xl font-black mb-2">Need Help?</h3>
             <p class="text-sm text-[var(--muted)]">Ask me anything about SunoPadho—features, accessibility, or how to get started.</p>
+        </div>
+
+        <div class="mb-5 flex flex-wrap gap-2">
+            <button type="button" onclick="setPrompt('How do I use the Magic Simplifier?')" class="px-4 py-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--primary-soft)]">Magic Simplifier</button>
+            <button type="button" onclick="setPrompt('Create a quiz for this text: Basic computer networks.')" class="px-4 py-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--primary-soft)]">Generate Quiz</button>
+            <button type="button" onclick="setPrompt('How do I upload a PDF for summary?')" class="px-4 py-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--primary-soft)]">PDF Summarizer</button>
+            <button type="button" onclick="clearChat()" class="px-4 py-2 rounded-xl border border-rose-400 text-rose-500 bg-[var(--surface)] hover:bg-rose-100">Clear chat</button>
         </div>
 
         <div id="chatMessages" class="space-y-6 max-h-[450px] overflow-y-auto mb-8 p-6 rounded-3xl bg-[var(--bg)] border border-[var(--border)] scroll-smooth">
@@ -116,5 +123,25 @@ async function sendChat() {
             </div>`;
     }
 }
+
+function setPrompt(text) {
+    const input = document.getElementById('chatInput');
+    input.value = text;
+    sendChat();
+}
+
+function clearChat() {
+    const container = document.getElementById('chatMessages');
+    container.innerHTML = `
+        <div class="flex gap-4 items-start">
+            <div class="w-10 h-10 rounded-full bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center flex-shrink-0 border border-[var(--primary)]/20 shadow-sm">
+                <i class="fa-solid fa-robot"></i>
+            </div>
+            <div class="glass-card p-5 rounded-2xl rounded-tl-none max-w-[85%] shadow-sm">
+                <p class="text-sm leading-relaxed">Hi there! 👋 I'm your <b>SunoPadho</b> guide. Ask me how to use the Magic Simplifier, Doc Reader, or how to toggle the smart accessibility tools!</p>
+            </div>
+        </div>`;
+}
+
 </script>
 {% endblock %}

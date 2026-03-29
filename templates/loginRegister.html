@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>SunoPadho | Authenticate</title>
     <style>
         /* ----- UNIVERSAL THEME: High-Contrast Blue & Amber ----- */
@@ -317,6 +318,7 @@
             <div class="form-wrapper align-items-center">
                 <div class="form sign-up">
                     <form class="sign-up" action="/register" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <div class="input-group">
                             <input type="text" name="username" placeholder="✨ Username" autocomplete="off" required>
                         </div>
@@ -352,6 +354,7 @@
             <div class="form-wrapper align-items-center">
                 <div class="form sign-in">
                     <form class="sign-in" action="/login" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <div class="input-group">
                             <input type="text" name="username" placeholder="👤 Username " required>
                         </div>

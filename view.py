@@ -1,11 +1,21 @@
 import os
+import logging
 from flask import Blueprint, jsonify, render_template, request, redirect, session, url_for
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from models import Helper
 from modules.ai_engine import generate_magic_lesson, get_magic_data, generate_quiz_content, summarize_text
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 view = Blueprint('view', __name__)
 auth = Blueprint('auth', __name__)
 db = Helper()
+
+# Initialize limiter for this blueprint
+limiter = Limiter(get_remote_address, default_limits=["200 per day", "50 per hour"])
 
 # --- AUTH ROUTES ---
 
@@ -111,12 +121,21 @@ def doc_convert():
 # --- API ROUTES ---
 
 @view.route('/run-magic', methods=['POST'])
+@limiter.limit("10 per hour")
 def run_magic():
 
     try:
         data = request.get_json()
         text = data.get('text')
         language = data.get('language', 'Simple English')
+
+        # Input validation
+        if not text or not isinstance(text, str):
+            return jsonify({"error": "Invalid text input"}), 400
+        if len(text) > 5000:  # Reasonable limit
+            return jsonify({"error": "Text too long (max 5000 characters)"}), 400
+        if language not in ['Simple English', 'Hindi']:
+            return jsonify({"error": "Invalid language"}), 400
         
         simple_text, visual_tags = get_magic_data(text, language)
         
@@ -136,14 +155,14 @@ def run_magic():
             from modules.video_engine import create_magic_video
             GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
             if not GEMINI_API_KEY:
-                print("GEMINI_API_KEY is not set in environment")
+                logger.warning("GEMINI_API_KEY is not set in environment")
             else:
                 video_filename = create_magic_video(audio_filename, visual_tags, api_key=GEMINI_API_KEY)
                 
                 if video_filename:
                     video_url = f"/static/videos/{video_filename}"
         except Exception as ve:
-            print(f"Full Video Engine pipeline failed: {ve}")
+            logger.error(f"Full Video Engine pipeline failed: {ve}")
 
         db.save_lesson(
             user_id=session.get("user_id"),
@@ -162,11 +181,13 @@ def run_magic():
         })
 
     except Exception as e:
-        print(f"BACKEND ERROR: {e}")
+        logger.error(f"BACKEND ERROR: {e}")
         return jsonify({"error": str(e)}), 500
 
 
 @view.route('/generate_quiz', methods=['POST'])
+@limiter.limit("5 per hour")
+def generate_quiz():
 def generate_quiz():
     try:
         context_text = ''
@@ -209,7 +230,7 @@ def generate_quiz():
         return jsonify({"success": False, "error": "Quiz generation returned unexpected result.", "raw": quiz_content}), 500
 
     except Exception as e:
-        print(f"QUIZ ERROR: {e}")
+        logger.error(f"QUIZ ERROR: {e}")
         return jsonify({"success": False, "error": "Error generating quiz. Please try again."}), 500
 
 
@@ -242,13 +263,18 @@ def submit_quiz():
         return jsonify({'success': True, 'saved': True, 'score': score, 'total': total})
 
     except Exception as e:
-        print(f"SUBMIT QUIZ ERROR: {e}")
+        logger.error(f"SUBMIT QUIZ ERROR: {e}")
         return jsonify({'success': False, 'error': 'Could not submit quiz results.'}), 500
 
 
 @view.route('/summarize-pdf', methods=['POST'])
+@limiter.limit("5 per hour")
 def summarize_pdf():
     try:
+        # Check file size (10MB limit)
+        if request.content_length and request.content_length > 10 * 1024 * 1024:
+            return jsonify({"error": "File too large (max 10MB)"}), 413
+
         file = request.files.get('file')
         summary_type = request.form.get('summaryType', 'Short')
         output_format = request.form.get('format', 'Paragraph')
@@ -273,11 +299,12 @@ def summarize_pdf():
         return jsonify({"success": True, **result})
 
     except Exception as e:
-        print(f"PDF SUMMARIZE ERROR: {e}")
+        logger.error(f"PDF SUMMARIZE ERROR: {e}")
         return jsonify({"error": str(e)}), 500
 
 
 @view.route('/chatbot-ask', methods=['POST'])
+@limiter.limit("20 per hour")
 def chatbot_ask():
     if "user_id" not in session:
         return jsonify({"success": False, "error": "Unauthorized"}), 401
@@ -337,11 +364,11 @@ If you don't know something, suggest they try existing features or ask a differe
 
         except (PermissionDeniedError, NotFoundError, BadRequestError) as e:
             last_error = e
-            print(f"CHATBOT model {model} failed: {e}")
+            logger.warning(f"CHATBOT model {model} failed: {e}")
             continue
 
         except Exception as e:
-            print(f"CHATBOT unexpected error with model {model}: {e}")
+            logger.error(f"CHATBOT unexpected error with model {model}: {e}")
             last_error = e
             continue
 
